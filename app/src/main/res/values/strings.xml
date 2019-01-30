@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Keeper</string>
+    <string name="title_home">Home</string>
+    <string name="title_status">Status</string>
+    <string name="income">收入</string>
+    <string name="outpay">支出</string>
+</resources>
