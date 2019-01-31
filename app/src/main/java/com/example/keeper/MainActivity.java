@@ -2,6 +2,7 @@ package com.example.keeper;
 
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -17,8 +18,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private Fragment homeFragment,statusFragment;
-    FloatingActionButton fab;
-
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -30,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
                         homeFragment = new HomeFragment();
                     }
                     getSupportActionBar().setTitle("Keeper");
-                    fab.show();
                     getFragmentManager()
                             .beginTransaction().hide(statusFragment).show(homeFragment).commit();
                     return true;
@@ -39,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
                         statusFragment = new StatusFragment();
                     }
                     getSupportActionBar().setTitle("Status");
-                    fab.hide();
                     getFragmentManager()
                             .beginTransaction().hide(homeFragment).show(statusFragment).commit();
                     return true;
@@ -55,18 +52,12 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Connector.getDatabase();
         homeFragment = new HomeFragment();
         statusFragment = new StatusFragment();
 
         getFragmentManager()
                 .beginTransaction().add(R.id.home_fragment_holder, homeFragment).add(R.id.home_fragment_holder,statusFragment).hide(statusFragment).commit();
 
-        fab = findViewById(R.id.fab);
-        fab.setOnClickListener(v->{
-            Intent intent = new Intent(this, AddBill.class);
-            startActivity(intent);
-        });
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);

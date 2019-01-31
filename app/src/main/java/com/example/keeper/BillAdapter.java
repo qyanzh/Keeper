@@ -33,6 +33,7 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
             billTime = view.findViewById(R.id.item_time);
         }
     }
+
     public BillAdapter(List<Bill> billList) {
         mBillList = billList;
     }
@@ -41,9 +42,9 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
     @Override
     public BillAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.bill_item,viewGroup,false);
+                .inflate(R.layout.bill_item, viewGroup, false);
         final ViewHolder holder = new ViewHolder(view);
-        holder.billView.setOnClickListener(v->{
+        holder.billView.setOnClickListener(v -> {
             int position = holder.getAdapterPosition();
             Bill bill = mBillList.get(position);
             Snackbar.make(holder.billView, bill.getCategory(), Snackbar.LENGTH_SHORT).show();
@@ -56,15 +57,19 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull BillAdapter.ViewHolder viewHolder, int i) {
         Bill bill = mBillList.get(i);
         viewHolder.billCategory.setText(bill.category);
-        viewHolder.billPrice.setText(String.valueOf(String.format((bill.isINCOME()?"":"-")+"¥%.1f", bill.price)));
-        if(bill.isINCOME()) {
+        viewHolder.billPrice.setText(String.valueOf(String.format((bill.isINCOME() ? "" : "-") + "¥%.1f", bill.price)));
+        if (bill.isINCOME()) {
             viewHolder.billPrice.setTextColor(ContextCompat.getColor(viewHolder.billView.getContext(), R.color.green));
+        } else {
+            viewHolder.billPrice.setTextColor(ContextCompat.getColor(viewHolder.billView.getContext(), R.color.black));
         }
-        viewHolder.billRemark.setText(bill.remark!=null?bill.remark:(bill.isINCOME()?"收入":"支出"));
-        viewHolder.billTime.setText(String.format("%02d",bill.hour)+":"+String.format("%02d",bill.minute));
+        viewHolder.billRemark.setText(bill.remark != null ? bill.remark : (bill.isINCOME() ? "收入" : "支出"));
+        viewHolder.billTime.setText(String.format("%02d", bill.hour) + ":" + String.format("%02d", bill.minute));
     }
+
     @Override
     public int getItemCount() {
         return mBillList.size();
     }
+
 }

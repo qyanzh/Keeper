@@ -1,5 +1,7 @@
 package com.example.keeper;
 
+import java.util.Calendar;
+
 public class Bill {
 
     public static final boolean INCOME = true;
@@ -13,6 +15,19 @@ public class Bill {
     public static final String[] payoutCategory = {
             "三餐","夜宵","食物","购物","娱乐","学习","出行","电影","聚餐"
     };
+
+    public Bill(boolean type, float price, String category) {
+        Calendar c = Calendar.getInstance();
+        this.type = type;
+        this.price = price;
+        this.category = category;
+        this.year = c.get(Calendar.YEAR);
+        this.month = c.get(Calendar.MONTH);
+        this.day = c.get(Calendar.DAY_OF_MONTH);
+        this.hour = c.get(Calendar.HOUR_OF_DAY);
+        this.minute = c.get(Calendar.MINUTE);
+        this.remark = null;
+    }
 
     public Bill(boolean type, float price, String category, int year, int month, int day, int hour, int minute) {
         this.type = type;
