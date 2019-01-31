@@ -1,56 +1,33 @@
 package com.example.keeper;
 
-import java.util.Calendar;
+import org.litepal.crud.LitePalSupport;
 
-public class Bill {
+
+public class Bill extends LitePalSupport {
 
     public static final boolean INCOME = true;
 
     public static final boolean PAYOUT = false;
 
-    public static final String[] incomeCategory = {
-            "生活费","奖学金","兼职"
+    public static String[] incomeCategory = {
+            "收入","生活费","奖学金","兼职"
     };
 
-    public static final String[] payoutCategory = {
-            "三餐","夜宵","食物","购物","娱乐","学习","出行","电影","聚餐"
+    public static String[] payoutCategory = {
+            "消费","三餐","夜宵","食物","转账","购物","娱乐","学习","出行","电影","聚餐"
     };
 
-    public Bill(boolean type, float price, String category) {
-        Calendar c = Calendar.getInstance();
-        this.type = type;
-        this.price = price;
-        this.category = category;
-        this.year = c.get(Calendar.YEAR);
-        this.month = c.get(Calendar.MONTH);
-        this.day = c.get(Calendar.DAY_OF_MONTH);
-        this.hour = c.get(Calendar.HOUR_OF_DAY);
-        this.minute = c.get(Calendar.MINUTE);
-        this.remark = null;
-    }
 
-    public Bill(boolean type, float price, String category, int year, int month, int day, int hour, int minute) {
+    public Bill(boolean type, float price, String category,String remark, int year, int month, int day, int hour, int minute) {
         this.type = type;
         this.price = price;
         this.category = category;
-        this.year = year;
-        this.month = month;
-        this.day = day;
-        this.hour = hour;
-        this.minute = minute;
-        this.remark = null;
-    }
-
-    public Bill(boolean type, float price, String category, int year, int month, int day, int hour, int minute,String remark) {
-        this.type = type;
-        this.price = price;
-        this.category = category;
-        this.year = year;
-        this.month = month;
-        this.day = day;
-        this.hour = hour;
-        this.minute = minute;
         this.remark=remark;
+        this.year = year;
+        this.month = month;
+        this.day = day;
+        this.hour = hour;
+        this.minute = minute;
     }
 
     boolean type;
@@ -62,6 +39,16 @@ public class Bill {
     int year,month,day,hour,minute;
 
     String remark;
+
+    long time;
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
 
     public boolean isINCOME() {
         return INCOME==type;
