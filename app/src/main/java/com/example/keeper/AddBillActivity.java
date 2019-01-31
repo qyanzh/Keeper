@@ -31,14 +31,9 @@ public class AddBillActivity extends AppCompatActivity implements AdapterView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_bill);
-
         initToolBar();
-
         initRadioButtons();
-
-
         initSpinner();
-
     }
 
     private void initRadioButtons() {
