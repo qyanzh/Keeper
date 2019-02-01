@@ -34,6 +34,8 @@
         android:ems="10"
         android:hint="时间"
         android:inputType="time"
+        android:textColor="@color/gray"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/divider4"
         app:layout_constraintTop_toBottomOf="@+id/text_time" />
@@ -45,7 +47,6 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="Time"
-        android:textColor="@color/black"
         app:layout_constraintStart_toEndOf="@+id/divider4"
         app:layout_constraintTop_toBottomOf="@+id/editText_remarks" />
 
@@ -56,7 +57,6 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="Date"
-        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editText_remarks" />
 
@@ -81,7 +81,6 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="Type"
-        android:textColor="@color/black"
         app:layout_constraintStart_toEndOf="@+id/divider4"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
 
@@ -92,7 +91,6 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="Amount"
-        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
 
@@ -103,14 +101,13 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="Category"
-        android:textColor="@color/black"
         app:layout_constraintStart_toEndOf="@+id/divider4"
         app:layout_constraintTop_toBottomOf="@+id/editText_amount" />
 
     <EditText
         android:id="@+id/editText_amount"
         android:layout_width="0dp"
-        android:layout_height="61dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:ems="10"
         android:hint="0.00"
@@ -138,14 +135,15 @@
     <Button
         android:id="@+id/editButton_date"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:ems="10"
         android:hint="日期"
         android:inputType="date"
-        android:textColor="@color/black"
+        android:textColor="@color/gray"
+        android:textSize="18sp"
         app:layout_constraintEnd_toStartOf="@+id/divider4"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_date" />
@@ -183,7 +181,6 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="Remark"
-        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editText_amount" />
 

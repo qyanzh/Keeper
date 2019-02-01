@@ -6,27 +6,34 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.app.Fragment;
+import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import org.litepal.LitePal;
 import org.litepal.tablemanager.Connector;
 
 import java.util.List;
 
+import static android.app.Activity.RESULT_OK;
+
 public class HomeFragment extends Fragment {
 
     public static final int ADD_BILL = 0;
+    public static final int REQUEST_ADD_BILL = 0;
     View view;
     RecyclerView billRecyclerView;
     FloatingActionButton fab;
     BottomNavigationView nav;
     List<Bill> billList;
+    BillAdapter adapter;
     SQLiteDatabase db;
 
     @Nullable
@@ -37,7 +44,7 @@ public class HomeFragment extends Fragment {
 
         view = inflater.inflate(R.layout.home_fragment, container, false);
         billRecyclerView = view.findViewById(R.id.bill_recyclerview);
-        fab = view.findViewById(R.id.fab);
+        fab = getActivity().findViewById(R.id.fab);
         nav = getActivity().findViewById(R.id.navigation);
         nav.setOnNavigationItemReselectedListener(i->{
             if(i.getItemId() == R.id.navigation_home) {
@@ -50,7 +57,7 @@ public class HomeFragment extends Fragment {
         billRecyclerView.setLayoutManager(linearLayoutManager);
 
         billList = getBillListFromDatabase();
-        BillAdapter adapter = new BillAdapter(billList);
+        adapter = new BillAdapter(billList);
         billRecyclerView.setAdapter(adapter);
         billRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -73,11 +80,27 @@ public class HomeFragment extends Fragment {
 
     private void addNewBill() {
         Intent intent = new Intent(getContext(), AddBillActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_ADD_BILL);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_ADD_BILL:
+                if(resultCode == RESULT_OK) {
+                    billList.clear();
+                    List<Bill> billList2 = LitePal.order("timeMills desc").find(Bill.class);
+                    billList.addAll(billList2);
+                    adapter.notifyDataSetChanged();
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     public List<Bill> getBillListFromDatabase(){
-        List<Bill> billList = LitePal.order("time desc").find(Bill.class);
+        List<Bill> billList = LitePal.order("timeMills desc").find(Bill.class);
         return billList;
     }
 }
