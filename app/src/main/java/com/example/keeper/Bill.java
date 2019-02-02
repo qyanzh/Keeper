@@ -54,6 +54,7 @@ public class Bill extends LitePalSupport {
     }
 
     public Bill() {
+        this.price = 0;
         this.type = PAYOUT;
         this.category = "消费";
         this.remark = "";

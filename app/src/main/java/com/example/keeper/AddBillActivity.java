@@ -90,7 +90,7 @@ public class AddBillActivity extends AppCompatActivity implements AdapterView.On
     static Bill bill;
     static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
     ;
-    static SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm");
+    static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     static String TAG = "时间测试";
 
     @Override
@@ -177,7 +177,7 @@ public class AddBillActivity extends AppCompatActivity implements AdapterView.On
                 onBackPressed();
                 break;
             case R.id.add_done:
-                if(!inputMoneyAmount.getText().equals("")) {
+                if(!inputMoneyAmount.getText().toString().equals("")) {
                     bill.setPrice(Float.parseFloat(inputMoneyAmount.getText().toString()));
                 }
                 String remark = inputRemarks.getText().toString();
