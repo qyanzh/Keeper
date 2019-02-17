@@ -3,6 +3,7 @@ package com.example.keeper;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -27,6 +29,8 @@ import org.litepal.LitePal;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class EditBillActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
 
@@ -120,7 +124,16 @@ public class EditBillActivity extends AppCompatActivity implements AdapterView.O
 
         initToolBar();
         inputMoneyAmount = findViewById(R.id.editText_amount);
-        inputMoneyAmount.setText(""+(bill.getPrice()==0?"":bill.getPrice()));
+        inputMoneyAmount.setFocusable(true);
+        inputMoneyAmount.requestFocus();
+        inputMoneyAmount.setText(""+(bill.getPrice()==0?"":Math.abs(bill.getPrice())));
+        Timer timer =new Timer();timer.schedule(new TimerTask() {
+            @Override public void run() {
+                InputMethodManager manager =(InputMethodManager) inputMoneyAmount.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                manager.showSoftInput(inputMoneyAmount,0);
+            }},500);
+
+
         inputRemarks = findViewById(R.id.editText_remarks);
         inputRemarks.setText(bill.getRemark());
         initRadioButtons();
@@ -209,7 +222,9 @@ public class EditBillActivity extends AppCompatActivity implements AdapterView.O
                 break;
             case R.id.add_done:
                 if(!inputMoneyAmount.getText().toString().equals("")) {
-                    bill.setPrice(Float.parseFloat(inputMoneyAmount.getText().toString()));
+                    float price = Float.parseFloat(inputMoneyAmount.getText().toString());
+                    if(bill.isPAYOUT()) price = -price;
+                    bill.setPrice(price);
                 }
                 String remark = inputRemarks.getText().toString();
                 bill.setRemark(remark);

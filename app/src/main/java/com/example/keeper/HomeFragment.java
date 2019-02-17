@@ -112,8 +112,9 @@ public class HomeFragment extends Fragment {
             if(index < 0) index = -index-1;
             billList.add(index, bill);
             adapter.notifyItemInserted(index);
+            billRecyclerView.scrollToPosition(index);
         }
-
+        fab.show();
     }
 
     public List<Bill> getBillListFromDatabase(){

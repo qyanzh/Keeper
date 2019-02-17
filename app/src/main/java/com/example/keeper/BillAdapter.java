@@ -12,12 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
 
 public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
     public static final int EDIT_BILL = 1;
-
+    DecimalFormat df = new DecimalFormat("0.00");
     private List<Bill> mBillList;
     Fragment homeFragment;
 
@@ -69,7 +70,7 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull BillAdapter.ViewHolder viewHolder, int i) {
         Bill bill = mBillList.get(i);
         viewHolder.billCategory.setText(bill.category);
-        viewHolder.billPrice.setText(String.valueOf(String.format((bill.isINCOME() ? "" : "-") + "¥%.1f", bill.price)));
+        viewHolder.billPrice.setText(df.format(bill.getPrice()));
         if (bill.isINCOME()) {
             viewHolder.billPrice.setTextColor(ContextCompat.getColor(viewHolder.billView.getContext(), R.color.green));
         } else {

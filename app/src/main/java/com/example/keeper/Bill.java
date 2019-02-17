@@ -14,7 +14,10 @@ public class Bill extends LitePalSupport implements Cloneable {
 
         @Override
         public int compare(Bill o1, Bill o2) {
-            return (int)((o2.timeMills-o1.timeMills)%Integer.MAX_VALUE);
+            if(o2.timeMills  > o1.timeMills) return 1;
+            if(o2.timeMills == o1.timeMills) return 0;
+            if(o2.timeMills  < o1.timeMills) return -1;
+            return 0;
         }
     }
 
