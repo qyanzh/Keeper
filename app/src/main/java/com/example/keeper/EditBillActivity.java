@@ -3,6 +3,7 @@ package com.example.keeper;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,7 +15,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -22,11 +22,13 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import org.litepal.LitePal;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class AddBillActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
+public class EditBillActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
 
     public static class TimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
@@ -89,22 +91,41 @@ public class AddBillActivity extends AppCompatActivity implements AdapterView.On
     static Button buttonChooseTime;
     static Bill bill;
     static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-    ;
     static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     static String TAG = "时间测试";
+    boolean isEditing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_bill);
+
+
+        Intent intent = getIntent();
+        String action = intent.getStringExtra("action");
+        if(action.equals("edit")) {
+            long id = intent.getLongExtra("id",-1);
+      //      Log.e("hahah",id+"");
+            try {
+                bill = (Bill)LitePal.find(Bill.class, id).clone();
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+            isEditing = true;
+        } else {
+            bill = new Bill();
+            isEditing = false;
+        }
+
         initToolBar();
-        bill = new Bill();
         inputMoneyAmount = findViewById(R.id.editText_amount);
+        inputMoneyAmount.setText(""+(bill.getPrice()==0?"":bill.getPrice()));
         inputRemarks = findViewById(R.id.editText_remarks);
-        inputRemarks.setText("");
+        inputRemarks.setText(bill.getRemark());
         initRadioButtons();
         initSpinner();
         initTimeButton();
+
     }
 
     static String getTimeString(Date date) {
@@ -127,13 +148,17 @@ public class AddBillActivity extends AppCompatActivity implements AdapterView.On
     public void onBackPressed() {
         super.onBackPressed();
         setResult(RESULT_CANCELED);
-        Toast.makeText(this, "取消新建", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "已取消", Toast.LENGTH_SHORT).show();
     }
 
     public void initRadioButtons() {
         radioButtonIncome = findViewById(R.id.radioButton_income);
         radioButtonPayout = findViewById(R.id.radioButton_payout);
-        radioButtonPayout.setChecked(true);
+        if(bill.isINCOME()) {
+            radioButtonIncome.setChecked(true);
+        } else {
+            radioButtonPayout.setChecked(true);
+        }
     }
 
     public void initSpinner() {
@@ -142,11 +167,21 @@ public class AddBillActivity extends AppCompatActivity implements AdapterView.On
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(adapter);
         spinnerCategory.setOnItemSelectedListener(this);
+        for(int i=0;i<adapter.getCount();++i) {
+            if(adapter.getItem(i).equals(bill.getCategory())) {
+                spinnerCategory.setSelection(i);
+                break;
+            }
+        }
     }
 
     public void initToolBar() {
         toolbar = findViewById(R.id.toolbar_edit);
-        toolbar.setTitle("Add a new bill");
+        if(isEditing) {
+            toolbar.setTitle("编辑");
+        } else {
+            toolbar.setTitle("新建");
+        }
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -167,7 +202,6 @@ public class AddBillActivity extends AppCompatActivity implements AdapterView.On
                 // Ninjas rule
                 break;
         }
-        Toast.makeText(this, "" + ((RadioButton) view).getText() + "is checked", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -181,10 +215,16 @@ public class AddBillActivity extends AppCompatActivity implements AdapterView.On
                     bill.setPrice(Float.parseFloat(inputMoneyAmount.getText().toString()));
                 }
                 String remark = inputRemarks.getText().toString();
-                bill.setRemark(!remark.equals("")?remark:(bill.isINCOME()?"收入":"支出"));
+                bill.setRemark(remark);
                 bill.save();
                 setResult(RESULT_OK);
                 Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
+                finish();
+                break;
+            case R.id.delete:
+                LitePal.delete(Bill.class,bill.getId());
+                setResult(RESULT_OK);
+                Toast.makeText(this,"已删除",Toast.LENGTH_SHORT).show();
                 finish();
                 break;
         }
@@ -192,8 +232,16 @@ public class AddBillActivity extends AppCompatActivity implements AdapterView.On
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if(isEditing==false) {
+            menu.getItem(0).setVisible(false);
+        }
+        return true;
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.edit_bill_done, menu);
+        getMenuInflater().inflate(R.menu.edit_bill, menu);
         return true;
     }
 

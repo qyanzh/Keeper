@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         setContentView(R.layout.activity_main);
         initView();
         welcome();
-
     }
 
     private void initView() {
@@ -40,8 +39,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         homeFragment = new HomeFragment();
         statusFragment = new StatusFragment();
         getFragmentManager()
-                .beginTransaction().add(R.id.home_fragment_holder, homeFragment).add(R.id.home_fragment_holder,statusFragment).hide(statusFragment).commit();
-        navigation = (BottomNavigationView) findViewById(R.id.navigation);
+                .beginTransaction()
+                .add(R.id.home_fragment_holder, homeFragment)
+                .add(R.id.home_fragment_holder,statusFragment)
+                .hide(statusFragment)
+                .commit();
+        navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(this);
     }
 

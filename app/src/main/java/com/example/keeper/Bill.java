@@ -7,7 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 
-public class Bill extends LitePalSupport {
+public class Bill extends LitePalSupport implements Cloneable{
 
     public static final boolean INCOME = true;
 
@@ -21,18 +21,6 @@ public class Bill extends LitePalSupport {
             "消费","三餐","夜宵","食物","转账","购物","娱乐","学习","出行","电影","聚餐"
     };
 
-
-//    public static void main(String[] args) {
-//        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd hh:mm");
-//        Bill bill = new Bill();
-//        String f = format.format(bill.getTime());
-//        String g = bill.getYear()+"/"+bill.getMonth()+"/"+bill.getDay()+" "+bill.getHour()+":"+bill.getMinute();
-//        Date time = bill.getTime();
-//        String h = time.getYear()+"/"+time.getMonth()+"/"+time.getDate()+" "+time.getHours()+":"+time.getMinutes();
-//        System.out.println(f);
-//        System.out.println(g);
-//        System.out.println(h);
-//    }
 
     public long getTimeMills() {
         return timeMills;
@@ -53,12 +41,25 @@ public class Bill extends LitePalSupport {
         this.minute = c.get(Calendar.MINUTE);
     }
 
+
+
     public Bill() {
         this.price = 0;
         this.type = PAYOUT;
         this.category = "消费";
         this.remark = "";
         this.setTime(Calendar.getInstance().getTimeInMillis());
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        Bill bill = null;
+        try{
+            bill = (Bill)super.clone();   //浅复制
+        }catch(CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return bill;
     }
 
     boolean type;
@@ -73,7 +74,15 @@ public class Bill extends LitePalSupport {
 
     long timeMills;
 
+    long id;
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public boolean isINCOME() {
         return INCOME==type;

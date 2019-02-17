@@ -1,21 +1,25 @@
 package com.example.keeper;
 
-import android.content.res.Resources;
-import android.graphics.Color;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
+    public static final int EDIT_BILL = 1;
 
     private List<Bill> mBillList;
+    Fragment homeFragment;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View billView;
@@ -34,7 +38,8 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
         }
     }
 
-    public BillAdapter(List<Bill> billList) {
+    public BillAdapter(Fragment fragment, List<Bill> billList) {
+        homeFragment = fragment;
         mBillList = billList;
     }
 
@@ -47,10 +52,17 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
         holder.billView.setOnClickListener(v -> {
             int position = holder.getAdapterPosition();
             Bill bill = mBillList.get(position);
-            Snackbar.make(holder.billView, bill.getCategory(), Snackbar.LENGTH_SHORT).show();
-            //TODO: open edit activity.
+            editBill(bill.getId());
+            Snackbar.make(holder.billView, ""+bill.getId(), Snackbar.LENGTH_SHORT).show();
         });
         return holder;
+    }
+
+    private void editBill(long id) {
+        Intent intent = new Intent(homeFragment.getContext(), EditBillActivity.class);
+        intent.putExtra("action","edit");
+        intent.putExtra("id",id);
+        homeFragment.startActivityForResult(intent,EDIT_BILL);
     }
 
     @Override
@@ -63,7 +75,7 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
         } else {
             viewHolder.billPrice.setTextColor(ContextCompat.getColor(viewHolder.billView.getContext(), R.color.black));
         }
-        viewHolder.billRemark.setText(bill.remark != null ? bill.remark : (bill.isINCOME() ? "收入" : "支出"));
+        viewHolder.billRemark.setText(bill.remark.equals("") ? (bill.isINCOME() ? "收入" : "支出"):bill.remark );
         viewHolder.billTime.setText(String.format("%02d", bill.hour) + ":" + String.format("%02d", bill.minute));
     }
 
