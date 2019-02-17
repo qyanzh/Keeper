@@ -52,16 +52,16 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
         holder.billView.setOnClickListener(v -> {
             int position = holder.getAdapterPosition();
             Bill bill = mBillList.get(position);
-            editBill(bill.getId());
-            Snackbar.make(holder.billView, ""+bill.getId(), Snackbar.LENGTH_SHORT).show();
+            editBill(bill.getId(),position);
         });
         return holder;
     }
 
-    private void editBill(long id) {
+    private void editBill(long id,int position) {
         Intent intent = new Intent(homeFragment.getContext(), EditBillActivity.class);
         intent.putExtra("action","edit");
         intent.putExtra("id",id);
+        intent.putExtra("position",position);
         homeFragment.startActivityForResult(intent,EDIT_BILL);
     }
 

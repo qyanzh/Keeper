@@ -94,6 +94,7 @@ public class EditBillActivity extends AppCompatActivity implements AdapterView.O
     static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     static String TAG = "时间测试";
     boolean isEditing;
+    int position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,12 +106,12 @@ public class EditBillActivity extends AppCompatActivity implements AdapterView.O
         String action = intent.getStringExtra("action");
         if(action.equals("edit")) {
             long id = intent.getLongExtra("id",-1);
-      //      Log.e("hahah",id+"");
             try {
                 bill = (Bill)LitePal.find(Bill.class, id).clone();
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();
             }
+            position=intent.getIntExtra("position",-1);
             isEditing = true;
         } else {
             bill = new Bill();
@@ -127,11 +128,6 @@ public class EditBillActivity extends AppCompatActivity implements AdapterView.O
         initTimeButton();
 
     }
-
-    static String getTimeString(Date date) {
-        return dateFormat.format(date) + " " + timeFormat.format(date);
-    }
-
 
     private void initTimeButton() {
         buttonChooseDate = findViewById(R.id.editButton_date);
@@ -206,6 +202,7 @@ public class EditBillActivity extends AppCompatActivity implements AdapterView.O
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent = new Intent();
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
@@ -217,13 +214,16 @@ public class EditBillActivity extends AppCompatActivity implements AdapterView.O
                 String remark = inputRemarks.getText().toString();
                 bill.setRemark(remark);
                 bill.save();
-                setResult(RESULT_OK);
+                intent.putExtra("id", bill.getId());
+                if(isEditing) intent.putExtra("position", position);
+                setResult(RESULT_OK,intent);
                 Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
                 finish();
                 break;
             case R.id.delete:
                 LitePal.delete(Bill.class,bill.getId());
-                setResult(RESULT_OK);
+                intent.putExtra("position", position);
+                setResult(RESULT_OK,intent);
                 Toast.makeText(this,"已删除",Toast.LENGTH_SHORT).show();
                 finish();
                 break;

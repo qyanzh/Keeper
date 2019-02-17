@@ -17,6 +17,8 @@ import android.view.ViewGroup;
 import org.litepal.LitePal;
 import org.litepal.tablemanager.Connector;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
@@ -83,16 +85,15 @@ public class HomeFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        //TODO:performance optimization.
         switch (requestCode) {
             case REQUEST_ADD_BILL:
                 if(resultCode == RESULT_OK) {
-                    refreshRecyclerView();
+                    refreshRecyclerView(data.getLongExtra("id",-1),-1);
                 }
                 break;
             case REQUEST_EDIT_BILL:
                 if (resultCode == RESULT_OK) {
-                    refreshRecyclerView();
+                    refreshRecyclerView(data.getLongExtra("id",-1),data.getIntExtra("position",-1));
                 }
                 break;
             default:
@@ -100,11 +101,19 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void refreshRecyclerView() {
-        billList.clear();
-        List<Bill> billList2 = LitePal.order("timeMills desc").find(Bill.class);
-        billList.addAll(billList2);
-        adapter.notifyDataSetChanged();
+    private void refreshRecyclerView(long id,int position) {
+        if(position>=0) {
+            billList.remove(position);
+            adapter.notifyItemRemoved(position);
+        }
+        if(id>0) {
+            Bill bill = LitePal.find(Bill.class,id);
+            int index =Collections.binarySearch(billList,bill,new Bill.CompareBillInTime());
+            if(index < 0) index = -index-1;
+            billList.add(index, bill);
+            adapter.notifyItemInserted(index);
+        }
+
     }
 
     public List<Bill> getBillListFromDatabase(){

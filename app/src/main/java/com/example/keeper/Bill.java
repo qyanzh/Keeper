@@ -4,21 +4,30 @@ import org.litepal.crud.LitePalSupport;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 
 
-public class Bill extends LitePalSupport implements Cloneable{
+public class Bill extends LitePalSupport implements Cloneable {
+
+    static class CompareBillInTime implements Comparator<Bill> {
+
+        @Override
+        public int compare(Bill o1, Bill o2) {
+            return (int)((o2.timeMills-o1.timeMills)%Integer.MAX_VALUE);
+        }
+    }
 
     public static final boolean INCOME = true;
 
     public static final boolean PAYOUT = false;
 
     public static String[] incomeCategory = {
-            "收入","生活费","奖学金","兼职"
+            "收入", "生活费", "奖学金", "兼职"
     };
 
     public static String[] payoutCategory = {
-            "消费","三餐","夜宵","食物","转账","购物","娱乐","学习","出行","电影","聚餐"
+            "消费", "三餐", "夜宵", "食物", "转账", "购物", "娱乐", "学习", "出行", "电影", "聚餐"
     };
 
 
@@ -35,12 +44,11 @@ public class Bill extends LitePalSupport implements Cloneable{
         c.setTimeInMillis(timeMills);
         this.timeMills = timeMills;
         this.year = c.get(Calendar.YEAR);
-        this.month = c.get(Calendar.MONTH)+1;
+        this.month = c.get(Calendar.MONTH) + 1;
         this.day = c.get(Calendar.DAY_OF_MONTH);
         this.hour = c.get(Calendar.HOUR_OF_DAY);
         this.minute = c.get(Calendar.MINUTE);
     }
-
 
 
     public Bill() {
@@ -54,9 +62,9 @@ public class Bill extends LitePalSupport implements Cloneable{
     @Override
     protected Object clone() throws CloneNotSupportedException {
         Bill bill = null;
-        try{
-            bill = (Bill)super.clone();   //浅复制
-        }catch(CloneNotSupportedException e) {
+        try {
+            bill = (Bill) super.clone();   //浅复制
+        } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
         return bill;
@@ -68,7 +76,7 @@ public class Bill extends LitePalSupport implements Cloneable{
 
     String category;
 
-    int year,month,day,hour,minute;
+    int year, month, day, hour, minute;
 
     String remark;
 
@@ -85,11 +93,11 @@ public class Bill extends LitePalSupport implements Cloneable{
     }
 
     public boolean isINCOME() {
-        return INCOME==type;
+        return INCOME == type;
     }
 
     public boolean isPAYOUT() {
-        return PAYOUT==type;
+        return PAYOUT == type;
     }
 
     public boolean isType() {
@@ -163,4 +171,5 @@ public class Bill extends LitePalSupport implements Cloneable{
     public void setRemark(String remark) {
         this.remark = remark;
     }
+
 }
