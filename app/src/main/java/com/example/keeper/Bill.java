@@ -10,7 +10,7 @@ import java.util.Date;
 
 public class Bill extends LitePalSupport implements Cloneable {
 
-    static class CompareBillInTime implements Comparator<Bill> {
+    static class CompareBillByTime implements Comparator<Bill> {
 
         @Override
         public int compare(Bill o1, Bill o2) {
@@ -26,11 +26,11 @@ public class Bill extends LitePalSupport implements Cloneable {
     public static final boolean PAYOUT = false;
 
     public static String[] incomeCategory = {
-            "收入", "生活费", "奖学金", "兼职"
+            "转账","生活费", "红包","奖学金", "兼职","其它"
     };
 
     public static String[] payoutCategory = {
-            "消费", "三餐", "夜宵", "食物", "转账", "购物", "娱乐", "学习", "出行", "电影", "聚餐"
+            "消费", "三餐", "夜宵", "食物", "缴费","转账", "购物", "娱乐", "学习", "出行", "电影", "聚餐","其它"
     };
 
 

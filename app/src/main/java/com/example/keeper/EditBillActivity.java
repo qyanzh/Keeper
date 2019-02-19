@@ -1,9 +1,11 @@
 package com.example.keeper;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -27,8 +29,11 @@ import android.widget.Toast;
 import org.litepal.LitePal;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -96,9 +101,9 @@ public class EditBillActivity extends AppCompatActivity implements AdapterView.O
     static Bill bill;
     static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
     static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
-    static String TAG = "时间测试";
     boolean isEditing;
     int position;
+    ArrayAdapter<String> spinnerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +122,7 @@ public class EditBillActivity extends AppCompatActivity implements AdapterView.O
             }
             position=intent.getIntExtra("position",-1);
             isEditing = true;
-        } else {
+        } else if(action.equals("add")){
             bill = new Bill();
             isEditing = false;
         }
@@ -127,13 +132,14 @@ public class EditBillActivity extends AppCompatActivity implements AdapterView.O
         inputMoneyAmount.setFocusable(true);
         inputMoneyAmount.requestFocus();
         inputMoneyAmount.setText(""+(bill.getPrice()==0?"":Math.abs(bill.getPrice())));
-        Timer timer =new Timer();timer.schedule(new TimerTask() {
-            @Override public void run() {
-                InputMethodManager manager =(InputMethodManager) inputMoneyAmount.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                manager.showSoftInput(inputMoneyAmount,0);
-            }},500);
-
-
+        Timer timer =new Timer();
+        timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    InputMethodManager manager =(InputMethodManager) inputMoneyAmount.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    manager.showSoftInput(inputMoneyAmount,0);
+                }
+        },500);
         inputRemarks = findViewById(R.id.editText_remarks);
         inputRemarks.setText(bill.getRemark());
         initRadioButtons();
@@ -155,9 +161,22 @@ public class EditBillActivity extends AppCompatActivity implements AdapterView.O
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        setResult(RESULT_CANCELED);
-        Toast.makeText(this, "已取消", Toast.LENGTH_SHORT).show();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("确认返回? 将不保存所作更改")
+                .setPositiveButton("确认", (dialog, id) -> {
+                    super.onBackPressed();
+                    setResult(RESULT_CANCELED);
+                    Toast.makeText(this, "已取消", Toast.LENGTH_SHORT).show();
+                    // FIRE ZE MISSILES!
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                        return;
+                    }
+                });
+        builder.create().show();
+
     }
 
     public void initRadioButtons() {
@@ -172,16 +191,45 @@ public class EditBillActivity extends AppCompatActivity implements AdapterView.O
 
     public void initSpinner() {
         spinnerCategory = findViewById(R.id.spinner_category);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, Bill.payoutCategory);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerCategory.setAdapter(adapter);
+        List<String> categories;
+        if(bill.isPAYOUT()) {
+            categories = new ArrayList<>(Arrays.asList(Bill.payoutCategory));
+        } else {
+            categories = new ArrayList<String>(Arrays.asList(Bill.incomeCategory));
+        }
+        spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,categories);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategory.setAdapter(spinnerAdapter);
         spinnerCategory.setOnItemSelectedListener(this);
-        for(int i=0;i<adapter.getCount();++i) {
-            if(adapter.getItem(i).equals(bill.getCategory())) {
+        for(int i=0;i<spinnerAdapter.getCount();++i) {
+            if(spinnerAdapter.getItem(i).equals(bill.getCategory())) {
                 spinnerCategory.setSelection(i);
                 break;
             }
         }
+    }
+
+    public void refreshSpinner() {
+        List<String> categories;
+        if(bill.isPAYOUT()) {
+            categories = new ArrayList<>(Arrays.asList(Bill.payoutCategory));
+        } else {
+            categories = new ArrayList<String>(Arrays.asList(Bill.incomeCategory));
+        }
+        spinnerAdapter.clear();
+        spinnerAdapter.addAll(categories);
+        spinnerAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String[] categories;
+        if(bill.isINCOME()) {
+            categories = Bill.incomeCategory;
+        } else {
+            categories = Bill.payoutCategory;
+        }
+        bill.setCategory(categories[position]);
     }
 
     public void initToolBar() {
@@ -203,11 +251,15 @@ public class EditBillActivity extends AppCompatActivity implements AdapterView.O
                 if (checked)
                     radioButtonPayout.setChecked(false);
                 bill.setType(Bill.INCOME);
+                bill.setCategory("转账");
+                refreshSpinner();
                 break;
             case R.id.radioButton_payout:
                 if (checked)
                     radioButtonIncome.setChecked(false);
                 bill.setType(Bill.PAYOUT);
+                bill.setCategory("消费");
+                refreshSpinner();
                 // Ninjas rule
                 break;
         }
@@ -258,12 +310,6 @@ public class EditBillActivity extends AppCompatActivity implements AdapterView.O
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.edit_bill, menu);
         return true;
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        String selectedCategory = Bill.payoutCategory[position];
-        bill.setCategory(selectedCategory);
     }
 
     @Override

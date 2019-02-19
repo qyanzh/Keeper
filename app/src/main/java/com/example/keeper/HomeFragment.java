@@ -1,7 +1,6 @@
 package com.example.keeper;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,18 +9,18 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import org.litepal.LitePal;
-import org.litepal.tablemanager.Connector;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
+import static com.example.keeper.MainActivity.TAG;
 
 public class HomeFragment extends Fragment {
 
@@ -34,13 +33,12 @@ public class HomeFragment extends Fragment {
     BottomNavigationView nav;
     List<Bill> billList;
     BillAdapter adapter;
-    SQLiteDatabase db;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView: ");
         LitePal.initialize(getContext());
-        db = Connector.getDatabase();
 
         view = inflater.inflate(R.layout.home_fragment, container, false);
         billRecyclerView = view.findViewById(R.id.bill_recyclerview);
@@ -108,7 +106,7 @@ public class HomeFragment extends Fragment {
         }
         if(id>0) {
             Bill bill = LitePal.find(Bill.class,id);
-            int index =Collections.binarySearch(billList,bill,new Bill.CompareBillInTime());
+            int index =Collections.binarySearch(billList,bill,new Bill.CompareBillByTime());
             if(index < 0) index = -index-1;
             billList.add(index, bill);
             adapter.notifyItemInserted(index);

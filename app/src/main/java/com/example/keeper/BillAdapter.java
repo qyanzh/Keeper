@@ -2,7 +2,6 @@ package com.example.keeper;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -13,12 +12,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
-import java.time.LocalDate;
 import java.util.List;
 
 public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
     public static final int EDIT_BILL = 1;
-    DecimalFormat df = new DecimalFormat("0.00");
+    public static final DecimalFormat df = new DecimalFormat("0.00");
     private List<Bill> mBillList;
     Fragment homeFragment;
 
