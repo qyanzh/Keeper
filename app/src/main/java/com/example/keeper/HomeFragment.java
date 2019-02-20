@@ -13,9 +13,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import org.litepal.LitePal;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,74 +26,85 @@ import static com.example.keeper.MainActivity.TAG;
 
 public class HomeFragment extends Fragment {
 
-    public static final int ADD_BILL = 0;
     public static final int REQUEST_ADD_BILL = 0;
     public static final int REQUEST_EDIT_BILL = 1;
     View view;
+    List<Bill> billList;
+    BillAdapter adapter;
     RecyclerView billRecyclerView;
     FloatingActionButton fab;
     BottomNavigationView nav;
-    List<Bill> billList;
-    BillAdapter adapter;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: ");
         LitePal.initialize(getContext());
-
         view = inflater.inflate(R.layout.home_fragment, container, false);
+        billList = getBillListFromDatabase();
+        initView();
+        return view;
+    }
+
+    public void initView() {
+
         billRecyclerView = view.findViewById(R.id.bill_recyclerview);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+        billRecyclerView.setLayoutManager(linearLayoutManager);
+        adapter = new BillAdapter(this, billList);
+        billRecyclerView.setAdapter(adapter);
+
         fab = getActivity().findViewById(R.id.fab);
+        fab.setOnClickListener(v -> {
+            addNewBill();
+        });
+
         nav = getActivity().findViewById(R.id.navigation);
-        nav.setOnNavigationItemReselectedListener(i->{
-            if(i.getItemId() == R.id.navigation_home) {
+        nav.setOnNavigationItemReselectedListener(i -> {
+            if (i.getItemId() == R.id.navigation_home) {
                 billRecyclerView.scrollToPosition(0);
                 fab.show();
             }
         });
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        billRecyclerView.setLayoutManager(linearLayoutManager);
-
-        billList = getBillListFromDatabase();
-        adapter = new BillAdapter(this,billList);
-        billRecyclerView.setAdapter(adapter);
         billRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if(dy>0) {
+                if (dy > 0) {
                     fab.hide();
                 } else {
                     fab.show();
                 }
             }
         });
-        fab.setOnClickListener(v->{
-            addNewBill();
-        });
-        return view;
+    }
+
+    public List<Bill> getBillListFromDatabase() {
+        List<Bill> billList = LitePal
+                .where("")
+                .order("timeMills desc")
+                .find(Bill.class);
+        return billList;
     }
 
     private void addNewBill() {
         Intent intent = new Intent(getContext(), EditBillActivity.class);
-        intent.putExtra("action","add");
+        intent.putExtra("action", "add");
         startActivityForResult(intent, REQUEST_ADD_BILL);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         switch (requestCode) {
             case REQUEST_ADD_BILL:
-                if(resultCode == RESULT_OK) {
-                    refreshRecyclerView(data.getLongExtra("id",-1),-1);
+                if (resultCode == RESULT_OK) {
+                    refreshRecyclerView(data);
                 }
                 break;
             case REQUEST_EDIT_BILL:
                 if (resultCode == RESULT_OK) {
-                    refreshRecyclerView(data.getLongExtra("id",-1),data.getIntExtra("position",-1));
+                    refreshRecyclerView(data);
                 }
                 break;
             default:
@@ -99,24 +112,37 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void refreshRecyclerView(long id,int position) {
-        if(position>=0) {
-            billList.remove(position);
-            adapter.notifyItemRemoved(position);
-        }
-        if(id>0) {
-            Bill bill = LitePal.find(Bill.class,id);
-            int index =Collections.binarySearch(billList,bill,new Bill.CompareBillByTime());
-            if(index < 0) index = -index-1;
-            billList.add(index, bill);
-            adapter.notifyItemInserted(index);
-            billRecyclerView.scrollToPosition(index);
+    private void refreshRecyclerView(Intent intent) {
+        int prePosition = intent.getIntExtra("prePosition", -1);
+        long id = intent.getLongExtra("id", -1);
+        switch (intent.getStringExtra("action")) {
+            case "add":
+                onBillAdded(id);
+                Toast.makeText(getContext(), "已保存", Toast.LENGTH_SHORT).show();
+                break;
+            case "delete":
+                onBillDeleted(prePosition);
+                Toast.makeText(getContext(),"已删除",Toast.LENGTH_SHORT).show();
+                break;
+            case "edit":
+                onBillDeleted(prePosition);
+                onBillAdded(id);
+                break;
         }
         fab.show();
     }
 
-    public List<Bill> getBillListFromDatabase(){
-        List<Bill> billList = LitePal.order("timeMills desc").find(Bill.class);
-        return billList;
+    private void onBillAdded(long id) {
+        Bill bill = LitePal.find(Bill.class, id);
+        int index = Collections.binarySearch(billList, bill, new Bill.CompareBillByTime());
+        if (index < 0) index = -index - 1;
+        billList.add(index, bill);
+        adapter.notifyItemInserted(index);
+        billRecyclerView.scrollToPosition(index);
+    }
+
+    private void onBillDeleted(int prePosition) {
+        billList.remove(prePosition);
+        adapter.notifyItemRemoved(prePosition);
     }
 }

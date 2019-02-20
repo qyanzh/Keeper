@@ -63,7 +63,7 @@ public class Bill extends LitePalSupport implements Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    protected Object clone() {
         Bill bill = null;
         try {
             bill = (Bill) super.clone();   //浅复制

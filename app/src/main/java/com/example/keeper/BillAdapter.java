@@ -1,11 +1,11 @@
 package com.example.keeper;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +15,10 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
-    public static final int EDIT_BILL = 1;
-    public static final DecimalFormat df = new DecimalFormat("0.00");
+    public static final DecimalFormat df = new DecimalFormat("+0.00;-0.00");
+    static int orange = Color.parseColor("#E8541E");
     private List<Bill> mBillList;
-    Fragment homeFragment;
+    Fragment mFragment;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View billView;
@@ -38,7 +38,7 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
     }
 
     public BillAdapter(Fragment fragment, List<Bill> billList) {
-        homeFragment = fragment;
+        mFragment = fragment;
         mBillList = billList;
     }
 
@@ -56,26 +56,23 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
         return holder;
     }
 
-    private void editBill(long id,int position) {
-        Intent intent = new Intent(homeFragment.getContext(), EditBillActivity.class);
-        intent.putExtra("action","edit");
-        intent.putExtra("id",id);
-        intent.putExtra("position",position);
-        homeFragment.startActivityForResult(intent,EDIT_BILL);
-    }
-
     @Override
     public void onBindViewHolder(@NonNull BillAdapter.ViewHolder viewHolder, int i) {
         Bill bill = mBillList.get(i);
         viewHolder.billCategory.setText(bill.category);
-        viewHolder.billPrice.setText(df.format(bill.getPrice()));
-        if (bill.isINCOME()) {
-            viewHolder.billPrice.setTextColor(ContextCompat.getColor(viewHolder.billView.getContext(), R.color.green));
+        float price = bill.getPrice();
+        if(price == 0) {
+            viewHolder.billPrice.setText("0.00");
         } else {
-            viewHolder.billPrice.setTextColor(ContextCompat.getColor(viewHolder.billView.getContext(), R.color.black));
+            viewHolder.billPrice.setText(df.format(price));
+        }
+        if (bill.isINCOME()) {
+            viewHolder.billPrice.setTextColor(orange);
+        } else {
+            viewHolder.billPrice.setTextColor(Color.BLACK);
         }
         viewHolder.billRemark.setText(bill.remark.equals("") ? (bill.isINCOME() ? "收入" : "支出"):bill.remark );
-        viewHolder.billTime.setText(String.format("%02d", bill.hour) + ":" + String.format("%02d", bill.minute));
+        viewHolder.billTime.setText(new MyDateFormater().format(bill.getTimeMills()));
     }
 
     @Override
@@ -83,4 +80,11 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
         return mBillList.size();
     }
 
+    private void editBill(long id,int position) {
+        Intent intent = new Intent(mFragment.getContext(), EditBillActivity.class);
+        intent.putExtra("action","edit");
+        intent.putExtra("id",id);
+        intent.putExtra("prePosition",position);
+        mFragment.startActivityForResult(intent,HomeFragment.REQUEST_EDIT_BILL);
+    }
 }
