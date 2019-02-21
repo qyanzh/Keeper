@@ -4,4 +4,7 @@
     <string name="title_status">Status</string>
     <string name="income">收入</string>
     <string name="outpay">支出</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

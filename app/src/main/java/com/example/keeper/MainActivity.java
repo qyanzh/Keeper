@@ -1,9 +1,12 @@
 package com.example.keeper;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -11,9 +14,12 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.Toast;
 
 import org.litepal.LitePal;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigation;
-    private Fragment homeFragment, statusFragment;
+    private Fragment homeFragment, statusFragment,currentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,29 +63,23 @@ public class MainActivity extends AppCompatActivity {
         mDrawerLayout = findViewById(R.id.drawer_layout);
         mNavigation = findViewById(R.id.nav_view);
         mNavigation.setCheckedItem(R.id.nav_menu_home);
-        mNavigation.setNavigationItemSelectedListener(i->{
-            switch (i.getItemId()) {
-                case R.id.nav_menu_home:
-                    i.setChecked(true);
-                    Toast.makeText(this, "haha", Toast.LENGTH_SHORT).show();
-            }
-            mDrawerLayout.closeDrawers();
-            return true;
-        });
+        mNavigation.setNavigationItemSelectedListener(this::onNavigationItemSelected);
         if(savedInstanceState == null) {
             if (homeFragment == null) homeFragment = new HomeFragment();
             if (statusFragment == null) statusFragment = new StatusFragment();
-            //     getSupportFragmentManager().beginTransaction().
-
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.home_fragment_container, homeFragment)
-                    .add(R.id.home_fragment_container, statusFragment)
-                    .hide(statusFragment)
-                    .commit();
-            mDrawerLayout = findViewById(R.id.drawer_layout);
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.add(R.id.home_fragment_container, homeFragment)
+                    .add(R.id.home_fragment_container, statusFragment).hide(statusFragment).commit();
+            currentFragment = homeFragment;
         }
+    }
 
+    private void showFragment(Fragment selectedFragment) {
+        getSupportFragmentManager().beginTransaction()
+                .hide(currentFragment)
+                .show(selectedFragment)
+                .commit();
+        currentFragment=selectedFragment;
     }
 
     @Override
@@ -110,27 +110,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    public boolean onNavigationItemSelected(MenuItem item) {
-//
-//
-//        switch (item.getItemId()) {
-//            case R.id.home:
-//                if (homeFragment == null) {
-//                    homeFragment = new HomeFragment();
-//                }
-//                getSupportActionBar().setTitle("Keeper");
-//                getFragmentManager()
-//                        .beginTransaction().hide(statusFragment).show(homeFragment).commit();
-//                return true;
-//            case R.id.showTitle:
-//                if (statusFragment == null) {
-//                    statusFragment = new StatusFragment();
-//                }
-//                getSupportActionBar().setTitle("Status");
-//                getFragmentManager()
-//                        .beginTransaction().hide(homeFragment).show(statusFragment).commit();
-//                return true;
-//        }
-//        return false;
-//    }
+    public boolean onNavigationItemSelected(MenuItem i) {
+        i.setChecked(true);
+        switch (i.getItemId()) {
+            case R.id.nav_menu_home:
+                showFragment(homeFragment);
+                toolbar.setTitle("记账");
+                break;
+            case R.id.nav_menu_today:
+                showFragment(statusFragment);
+                toolbar.setTitle("今天");
+                break;
+            case R.id.nav_menu_monthly:
+                showFragment(statusFragment);
+                toolbar.setTitle("本月");
+                break;
+            case R.id.nav_menu_yearly:
+                showFragment(statusFragment);
+                toolbar.setTitle("年度");
+                break;
+        }
+        mDrawerLayout.closeDrawers();
+        return true;
+    }
 }
