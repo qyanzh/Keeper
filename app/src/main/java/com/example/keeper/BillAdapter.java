@@ -3,8 +3,7 @@ package com.example.keeper;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
-import android.app.Fragment;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,7 +71,7 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> {
             viewHolder.billPrice.setTextColor(Color.BLACK);
         }
         viewHolder.billRemark.setText(bill.remark.equals("") ? (bill.isINCOME() ? "收入" : "支出"):bill.remark );
-        viewHolder.billTime.setText(new MyDateFormater().format(bill.getTimeMills()));
+        viewHolder.billTime.setText(new MyDateFormat().format(bill.getTimeMills()));
     }
 
     @Override

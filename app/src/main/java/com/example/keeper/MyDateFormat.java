@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class MyDateFormater {
+public class MyDateFormat {
     private static SimpleDateFormat todayFormatter = new SimpleDateFormat("今天 HH:mm");
     private static SimpleDateFormat yesterdayFormatter = new SimpleDateFormat("昨天 HH:mm");
     private static SimpleDateFormat sameYearFormatter = new SimpleDateFormat("MM/dd HH:mm");

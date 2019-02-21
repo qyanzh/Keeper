@@ -1,14 +1,15 @@
 package com.example.keeper;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.app.Fragment;
-import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +18,6 @@ import android.widget.Toast;
 
 import org.litepal.LitePal;
 
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,13 +33,11 @@ public class HomeFragment extends Fragment {
     BillAdapter adapter;
     RecyclerView billRecyclerView;
     FloatingActionButton fab;
-    BottomNavigationView nav;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: ");
-        LitePal.initialize(getContext());
         view = inflater.inflate(R.layout.home_fragment, container, false);
         billList = getBillListFromDatabase();
         initView();
@@ -47,25 +45,14 @@ public class HomeFragment extends Fragment {
     }
 
     public void initView() {
-
-        billRecyclerView = view.findViewById(R.id.bill_recyclerview);
+        billRecyclerView = view.findViewById(R.id.include);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         billRecyclerView.setLayoutManager(linearLayoutManager);
         adapter = new BillAdapter(this, billList);
         billRecyclerView.setAdapter(adapter);
 
-        fab = getActivity().findViewById(R.id.fab);
-        fab.setOnClickListener(v -> {
-            addNewBill();
-        });
-
-        nav = getActivity().findViewById(R.id.navigation);
-        nav.setOnNavigationItemReselectedListener(i -> {
-            if (i.getItemId() == R.id.navigation_home) {
-                billRecyclerView.scrollToPosition(0);
-                fab.show();
-            }
-        });
+        fab = view.findViewById(R.id.fab);
+        fab.setOnClickListener(v -> addNewBill());
 
         billRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -125,6 +112,7 @@ public class HomeFragment extends Fragment {
                 Toast.makeText(getContext(),"已删除",Toast.LENGTH_SHORT).show();
                 break;
             case "edit":
+                Toast.makeText(getContext(), "已保存", Toast.LENGTH_SHORT).show();
                 onBillDeleted(prePosition);
                 onBillAdded(id);
                 break;

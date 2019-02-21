@@ -33,9 +33,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Callable;
 
-public class EditBillActivity extends AppCompatActivity{
+public class EditBillActivity extends AppCompatActivity {
 
     Toolbar toolbar;
     EditText inputMoneyAmount;
@@ -95,22 +94,29 @@ public class EditBillActivity extends AppCompatActivity{
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.edit_bill, menu);
+        getMenuInflater().inflate(R.menu.edit_bill_menu, menu);
         return true;
     }
 
     @Override
+    public void onBackPressed() {
+        if(action.equals("add")) {
+            confirmDialog("放弃本次操作?", "back");
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent = new Intent();
         switch (item.getItemId()) {
             case android.R.id.home:
-                confirmDialog("放弃本次操作?","back");
-                break;
+                onBackPressed();
             case R.id.add_done:
                 saveBill();
                 break;
             case R.id.delete:
-                confirmDialog("确认删除?","delete");
+                confirmDialog("确认删除?", "delete");
                 break;
         }
         return true;
@@ -120,9 +126,9 @@ public class EditBillActivity extends AppCompatActivity{
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(content)
                 .setPositiveButton("确认", (dialog, id) -> {
-                    if(action.equals("delete")) {
+                    if (action.equals("delete")) {
                         deleteBill();
-                    } else if(action.equals("back")) {
+                    } else if (action.equals("back")) {
                         super.onBackPressed();
                     }
                 })
@@ -168,26 +174,28 @@ public class EditBillActivity extends AppCompatActivity{
         inputMoneyAmount.setFocusable(true);
         inputMoneyAmount.requestFocus();
         inputMoneyAmount.setText("" + (bill.getPrice() == 0 ? "" : Math.abs(bill.getPrice())));
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                InputMethodManager manager = (InputMethodManager) inputMoneyAmount.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                manager.showSoftInput(inputMoneyAmount, 0);
-            }
-        }, 500);
+        if(action.equals("add")) {
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    InputMethodManager manager = (InputMethodManager) inputMoneyAmount.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    manager.showSoftInput(inputMoneyAmount, 0);
+                }
+            }, 500);
+        }
     }
 
     public void initRadioButtons() {
         radioButtonIncome = findViewById(R.id.radioButton_income);
         radioButtonPayout = findViewById(R.id.radioButton_payout);
-        radioButtonIncome.setOnClickListener(v->{
+        radioButtonIncome.setOnClickListener(v -> {
             radioButtonPayout.setChecked(false);
             bill.setType(Bill.INCOME);
             bill.setCategory("转账");
             refreshSpinner();
         });
-        radioButtonPayout.setOnClickListener(v->{
+        radioButtonPayout.setOnClickListener(v -> {
             radioButtonIncome.setChecked(false);
             bill.setType(Bill.PAYOUT);
             bill.setCategory("消费");
