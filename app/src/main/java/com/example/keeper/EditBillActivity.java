@@ -26,7 +26,6 @@ import android.widget.Toast;
 
 import org.litepal.LitePal;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -46,8 +45,6 @@ public class EditBillActivity extends AppCompatActivity {
     ArrayAdapter<String> spinnerAdapter;
     static Button buttonChooseDate;
     static Button buttonChooseTime;
-    static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-    static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     static Bill bill;
     String action;
     int prePosition;
@@ -94,7 +91,7 @@ public class EditBillActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.edit_bill_menu, menu);
+        getMenuInflater().inflate(R.menu.edit_bill, menu);
         return true;
     }
 
@@ -262,8 +259,8 @@ public class EditBillActivity extends AppCompatActivity {
         buttonChooseTime.setOnClickListener(this::showTimePickerDialog);
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(bill.getTimeMills());
-        buttonChooseDate.setText(dateFormat.format(c.getTime()));
-        buttonChooseTime.setText(timeFormat.format(c.getTime()));
+        buttonChooseDate.setText(MyDateFormat.normalDateFormatter.format(c.getTime()));
+        buttonChooseTime.setText(MyDateFormat.timeFormatter.format(c.getTime()));
     }
 
 
@@ -280,7 +277,6 @@ public class EditBillActivity extends AppCompatActivity {
 
     public static class TimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
-
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -302,13 +298,12 @@ public class EditBillActivity extends AppCompatActivity {
             int day = c.get(Calendar.DAY_OF_MONTH);
             c.set(year, month, day, hourOfDay, minute);
             bill.setTime(c.getTimeInMillis());
-            buttonChooseTime.setText(timeFormat.format(c.getTime()));
+            buttonChooseTime.setText(MyDateFormat.timeFormatter.format(c.getTime()));
         }
     }
 
     public static class DatePickerFragment extends DialogFragment
             implements DatePickerDialog.OnDateSetListener {
-
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -325,7 +320,7 @@ public class EditBillActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             c.set(year, month, day, bill.getHour(), bill.getMinute());
             bill.setTime(c.getTimeInMillis());
-            buttonChooseDate.setText(dateFormat.format(c.getTime()));
+            buttonChooseDate.setText(MyDateFormat.normalDateFormatter.format(c.getTime()));
         }
 
     }

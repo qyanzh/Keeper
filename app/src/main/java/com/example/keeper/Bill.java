@@ -1,11 +1,8 @@
 package com.example.keeper;
 
 import org.litepal.crud.LitePalSupport;
-
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Comparator;
-import java.util.Date;
 
 
 public class Bill extends LitePalSupport implements Cloneable {
@@ -14,10 +11,7 @@ public class Bill extends LitePalSupport implements Cloneable {
 
         @Override
         public int compare(Bill o1, Bill o2) {
-            if(o2.timeMills  > o1.timeMills) return 1;
-            if(o2.timeMills == o1.timeMills) return 0;
-            if(o2.timeMills  < o1.timeMills) return -1;
-            return 0;
+            return Long.compare(o2.timeMills, o1.timeMills);
         }
     }
 
@@ -26,11 +20,11 @@ public class Bill extends LitePalSupport implements Cloneable {
     public static final boolean PAYOUT = false;
 
     public static String[] incomeCategory = {
-            "转账","生活费", "红包","奖学金", "兼职","其它"
+            "转账", "生活费", "红包", "奖学金", "工资", "其它"
     };
 
     public static String[] payoutCategory = {
-            "消费", "三餐", "夜宵", "食物", "缴费","转账", "购物", "娱乐", "学习", "出行", "电影", "聚餐","其它"
+            "消费", "餐饮", "缴费", "转账", "购物", "娱乐", "学习", "出行", "电影", "聚餐", "其它"
     };
 
 

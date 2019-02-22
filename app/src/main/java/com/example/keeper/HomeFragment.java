@@ -1,7 +1,6 @@
 package com.example.keeper;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,12 +8,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 
 import org.litepal.LitePal;
 
@@ -38,7 +38,7 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: ");
-        view = inflater.inflate(R.layout.home_fragment, container, false);
+        view = inflater.inflate(R.layout.fragment_home, container, false);
         billList = getBillListFromDatabase();
         initView();
         return view;
@@ -46,10 +46,17 @@ public class HomeFragment extends Fragment {
 
     public void initView() {
         billRecyclerView = view.findViewById(R.id.include);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        billRecyclerView.setLayoutManager(linearLayoutManager);
+        billRecyclerView.setLayoutManager( new LinearLayoutManager(getActivity()));
         adapter = new BillAdapter(this, billList);
         billRecyclerView.setAdapter(adapter);
+        final StickyRecyclerHeadersDecoration headersDecoration = new StickyRecyclerHeadersDecoration(adapter);
+        billRecyclerView.addItemDecoration(headersDecoration);
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                headersDecoration.invalidateHeaders();
+            }
+        });
 
         fab = view.findViewById(R.id.fab);
         fab.setOnClickListener(v -> addNewBill());

@@ -1,16 +1,17 @@
 package com.example.keeper;
 
-import java.text.FieldPosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 public class MyDateFormat {
-    private static SimpleDateFormat todayFormatter = new SimpleDateFormat("今天 HH:mm");
-    private static SimpleDateFormat yesterdayFormatter = new SimpleDateFormat("昨天 HH:mm");
-    private static SimpleDateFormat sameYearFormatter = new SimpleDateFormat("MM/dd HH:mm");
-    private static SimpleDateFormat longFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-    public String format(long timeMills) {
+    public enum FORMATTYPE{
+        DAY,NORMAL
+    }
+    public static SimpleDateFormat sameYearFormatter = new SimpleDateFormat("MM月dd日");
+    public static SimpleDateFormat normalDateFormatter = new SimpleDateFormat("yyyy年MM月dd日");
+    public static SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
+    public static String format(long timeMills,FORMATTYPE type) {
         Calendar c = Calendar.getInstance();
         int curYear = c.get(Calendar.YEAR);
         int curMonth = c.get(Calendar.MONTH);
@@ -20,22 +21,25 @@ public class MyDateFormat {
         int month = c.get(Calendar.MONTH);
         int day = c.get(Calendar.DAY_OF_MONTH);
         Date d = c.getTime();
-        String ret;
+        StringBuilder ret = new StringBuilder();
         if(year == curYear) {
             if(month == curMonth) {
                 if(day == curDay) {
-                    ret = todayFormatter.format(d);
+                    ret.append("今天");
                 } else if( day == curDay-1 ) {
-                    ret = yesterdayFormatter.format(d);
+                    ret.append("昨天");
                 } else {
-                    ret = sameYearFormatter.format(d);
+                    ret.append(sameYearFormatter.format(d));
                 }
             } else {
-                ret = sameYearFormatter.format(d);
+                ret.append(sameYearFormatter.format(d));
             }
         } else {
-            ret = longFormatter.format(d);
+            ret.append(normalDateFormatter.format(d));
         }
-        return ret;
+        if(type == FORMATTYPE.NORMAL) {
+            ret.append(" "+timeFormatter.format(d));
+        }
+        return ret.toString();
     }
 }
