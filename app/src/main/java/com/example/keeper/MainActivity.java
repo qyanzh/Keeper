@@ -2,8 +2,11 @@ package com.example.keeper;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.support.constraint.Group;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import com.example.keeper.HomeFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -12,16 +15,22 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import org.litepal.LitePal;
 
+import java.util.function.IntBinaryOperator;
+
 public class MainActivity extends AppCompatActivity {
 
-    public static final String TAG = "TEST";
+    public static final String TAG = "MainActivity";
     private Toolbar toolbar;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigation;
     private Fragment homeFragment, statusFragment,currentFragment;
+    static Group emptyListImage;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         LitePal.initialize(this);
         welcome();
-        initView(savedInstanceState);
+        initView();
     }
 
     public void welcome() {
@@ -49,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void initView(Bundle savedInstanceState) {
+    private void initView() {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
@@ -58,23 +67,28 @@ public class MainActivity extends AppCompatActivity {
         mNavigation = findViewById(R.id.nav_view);
         mNavigation.setCheckedItem(R.id.nav_menu_home);
         mNavigation.setNavigationItemSelectedListener(this::onNavigationItemSelected);
-        if(savedInstanceState == null) {
-            if (homeFragment == null) homeFragment = new HomeFragment();
-            if (statusFragment == null) statusFragment = new StatusFragment();
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.add(R.id.home_fragment_container, homeFragment)
-                    .add(R.id.home_fragment_container, statusFragment).hide(statusFragment).commit();
-            currentFragment = homeFragment;
-        }
+        if (homeFragment == null) homeFragment = new HomeFragment();
+        if (statusFragment == null) statusFragment = new StatusFragment();
+        getSupportFragmentManager().beginTransaction()
+            .add(R.id.home_fragment_container, homeFragment,"homefragment")
+            .add(R.id.home_fragment_container, statusFragment,"statusfragment")
+            .hide(statusFragment)
+            .commit();
+        currentFragment = homeFragment;
+        emptyListImage = findViewById(R.id.empty_list_image);
+        Log.d(TAG, "listImage Main "+emptyListImage.toString());
     }
 
     private void showFragment(Fragment selectedFragment) {
-        getSupportFragmentManager().beginTransaction()
-                .hide(currentFragment)
-                .show(selectedFragment)
-                .commit();
+         if(currentFragment != selectedFragment) {
+            getSupportFragmentManager().beginTransaction()
+                    .hide(currentFragment)
+                    .show(selectedFragment)
+                    .commit();
+        }
         currentFragment=selectedFragment;
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -105,6 +119,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onNavigationItemSelected(MenuItem i) {
+        if(emptyListImage.getVisibility()==View.VISIBLE) {
+            showFragment(homeFragment);
+            mDrawerLayout.closeDrawers();
+           return true;
+        }
+        emptyListImage.requestLayout();
         i.setChecked(true);
         switch (i.getItemId()) {
             case R.id.nav_menu_home:

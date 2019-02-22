@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.Group;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,10 +23,10 @@ import java.util.Collections;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
-import static com.example.keeper.MainActivity.TAG;
 
 public class HomeFragment extends Fragment {
 
+    public static final String TAG = "homefragment";
     public static final int REQUEST_ADD_BILL = 0;
     public static final int REQUEST_EDIT_BILL = 1;
     View view;
@@ -33,19 +34,22 @@ public class HomeFragment extends Fragment {
     BillAdapter adapter;
     RecyclerView billRecyclerView;
     FloatingActionButton fab;
+    Group emptyListImage;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: ");
         view = inflater.inflate(R.layout.fragment_home, container, false);
+        emptyListImage = container.findViewById(R.id.empty_list_image);
+        Log.d(TAG, "listImage Fragment "+emptyListImage.toString());
         billList = getBillListFromDatabase();
         initView();
         return view;
     }
 
     public void initView() {
-        billRecyclerView = view.findViewById(R.id.include);
+        billRecyclerView = view.findViewById(R.id.home_recyclerview);
         billRecyclerView.setLayoutManager( new LinearLayoutManager(getActivity()));
         adapter = new BillAdapter(this, billList);
         billRecyclerView.setAdapter(adapter);
@@ -72,8 +76,9 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
+        checkListEmpty();
     }
-
+    
     public List<Bill> getBillListFromDatabase() {
         List<Bill> billList = LitePal
                 .where("")
@@ -112,6 +117,7 @@ public class HomeFragment extends Fragment {
         switch (intent.getStringExtra("action")) {
             case "add":
                 onBillAdded(id);
+                emptyListImage.setVisibility(View.INVISIBLE);
                 Toast.makeText(getContext(), "已保存", Toast.LENGTH_SHORT).show();
                 break;
             case "delete":
@@ -119,9 +125,8 @@ public class HomeFragment extends Fragment {
                 Toast.makeText(getContext(),"已删除",Toast.LENGTH_SHORT).show();
                 break;
             case "edit":
+                onBillEdited(prePosition,id);
                 Toast.makeText(getContext(), "已保存", Toast.LENGTH_SHORT).show();
-                onBillDeleted(prePosition);
-                onBillAdded(id);
                 break;
         }
         fab.show();
@@ -139,5 +144,21 @@ public class HomeFragment extends Fragment {
     private void onBillDeleted(int prePosition) {
         billList.remove(prePosition);
         adapter.notifyItemRemoved(prePosition);
+        checkListEmpty();
+    }
+
+    private void onBillEdited(int prePosition,long id) {
+        billList.remove(prePosition);
+        onBillAdded(id);
+    }
+
+    private void checkListEmpty() {
+        if(billList.isEmpty()) {
+            emptyListImage.setVisibility(View.VISIBLE);
+            emptyListImage.requestLayout();
+        } else {
+            emptyListImage.setVisibility(View.INVISIBLE);
+            emptyListImage.requestLayout();
+        }
     }
 }

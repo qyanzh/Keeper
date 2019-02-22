@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 public class StatusFragment extends Fragment {
+    public static final String TAG = "statusfragment";
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
