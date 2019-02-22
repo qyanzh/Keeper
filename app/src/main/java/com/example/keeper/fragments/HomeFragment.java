@@ -1,4 +1,4 @@
-package com.example.keeper;
+package com.example.keeper.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,12 +15,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.keeper.Bill;
+import com.example.keeper.BillAdapter;
+import com.example.keeper.activities.EditBillActivity;
+import com.example.keeper.R;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 
+import org.jetbrains.annotations.TestOnly;
 import org.litepal.LitePal;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -30,10 +37,10 @@ public class HomeFragment extends Fragment {
     public static final int REQUEST_ADD_BILL = 0;
     public static final int REQUEST_EDIT_BILL = 1;
     View view;
-    List<Bill> billList;
-    BillAdapter adapter;
-    RecyclerView billRecyclerView;
-    FloatingActionButton fab;
+    public List<Bill> billList;
+    public BillAdapter adapter;
+    public RecyclerView billRecyclerView;
+    public FloatingActionButton fab;
     Group emptyListImage;
 
     @Nullable
@@ -42,7 +49,6 @@ public class HomeFragment extends Fragment {
         Log.d(TAG, "onCreateView: ");
         view = inflater.inflate(R.layout.fragment_home, container, false);
         emptyListImage = container.findViewById(R.id.empty_list_image);
-        Log.d(TAG, "listImage Fragment "+emptyListImage.toString());
         billList = getBillListFromDatabase();
         initView();
         return view;
@@ -64,12 +70,13 @@ public class HomeFragment extends Fragment {
 
         fab = view.findViewById(R.id.fab);
         fab.setOnClickListener(v -> addNewBill());
+        fab.setOnLongClickListener((View v) -> addBillListRandomly());
 
         billRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0) {
+                if (dy > 0 ) {
                     fab.hide();
                 } else {
                     fab.show();
@@ -78,13 +85,36 @@ public class HomeFragment extends Fragment {
         });
         checkListEmpty();
     }
-    
+
     public List<Bill> getBillListFromDatabase() {
         List<Bill> billList = LitePal
                 .where("")
                 .order("timeMills desc")
                 .find(Bill.class);
         return billList;
+    }
+
+    @TestOnly
+    public boolean addBillListRandomly() {
+        emptyListImage.setVisibility(View.INVISIBLE);
+        for(int i=0;i<10;++i) {
+            Bill bill = new Bill();
+            bill.setPrice(new Random().nextInt()%200);
+            if(bill.getPrice()<0) bill.setType(Bill.PAYOUT);
+            else bill.setType(Bill.INCOME);
+            if(bill.isIncome()) {
+                bill.setCategory(Bill.incomeCategory[Math.abs(new Random().nextInt()%Bill.incomeCategory.length)]);
+            } else {
+                bill.setCategory(Bill.payoutCategory[Math.abs(new Random().nextInt()%Bill.payoutCategory.length)]);
+            }
+            Calendar c = Calendar.getInstance();
+            c.set(2018+i%2,new Random().nextInt()%12,new Random().nextInt()%27+1,new Random().nextInt()%24+1,new Random().nextInt()%60);
+            bill.setTime(c.getTimeInMillis());
+            bill.save();
+            onBillAdded(bill.getId());
+        }
+        billRecyclerView.scrollToPosition(0);
+        return true;
     }
 
     private void addNewBill() {
@@ -122,6 +152,7 @@ public class HomeFragment extends Fragment {
                 break;
             case "delete":
                 onBillDeleted(prePosition);
+                checkListEmpty();
                 Toast.makeText(getContext(),"已删除",Toast.LENGTH_SHORT).show();
                 break;
             case "edit":
@@ -134,31 +165,42 @@ public class HomeFragment extends Fragment {
 
     private void onBillAdded(long id) {
         Bill bill = LitePal.find(Bill.class, id);
-        int index = Collections.binarySearch(billList, bill, new Bill.CompareBillByTime());
-        if (index < 0) index = -index - 1;
-        billList.add(index, bill);
-        adapter.notifyItemInserted(index);
-        billRecyclerView.scrollToPosition(index);
+        int newPosition = Collections.binarySearch(billList, bill, new Bill.CompareBillByTime());
+        if (newPosition < 0) newPosition = -newPosition - 1;
+        billList.add(newPosition, bill);
+        adapter.notifyItemInserted(newPosition);
+        billRecyclerView.scrollToPosition(newPosition);
     }
 
     private void onBillDeleted(int prePosition) {
         billList.remove(prePosition);
         adapter.notifyItemRemoved(prePosition);
-        checkListEmpty();
     }
 
     private void onBillEdited(int prePosition,long id) {
         billList.remove(prePosition);
-        onBillAdded(id);
+        Bill bill = LitePal.find(Bill.class, id);
+        int newPosition = Collections.binarySearch(billList, bill, new Bill.CompareBillByTime());
+        if (newPosition < 0) newPosition = -newPosition - 1;
+        billList.add(newPosition, bill);
+        if(newPosition == prePosition) {
+            adapter.notifyItemChanged(prePosition);
+        } else {
+            adapter.notifyItemRemoved(prePosition);
+            adapter.notifyItemInserted(newPosition);
+            billRecyclerView.scrollToPosition(newPosition);
+        }
     }
 
-    private void checkListEmpty() {
+    public void checkListEmpty() {
         if(billList.isEmpty()) {
             emptyListImage.setVisibility(View.VISIBLE);
             emptyListImage.requestLayout();
+            fab.show();
         } else {
             emptyListImage.setVisibility(View.INVISIBLE);
             emptyListImage.requestLayout();
         }
+
     }
 }

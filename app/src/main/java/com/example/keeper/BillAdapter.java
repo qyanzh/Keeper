@@ -3,7 +3,6 @@ package com.example.keeper;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.keeper.activities.EditBillActivity;
+import com.example.keeper.fragments.HomeFragment;
+import com.example.keeper.mytools.MyDateFormat;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
 
 import java.text.DecimalFormat;
@@ -69,12 +71,12 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> im
         } else {
             viewHolder.billPrice.setText(df.format(price));
         }
-        if (bill.isINCOME()) {
+        if (bill.isIncome()) {
             viewHolder.billPrice.setTextColor(orange);
         } else {
             viewHolder.billPrice.setTextColor(Color.BLACK);
         }
-        viewHolder.billRemark.setText(bill.remark.equals("") ? (bill.isINCOME() ? "收入" : "支出"):bill.remark );
+        viewHolder.billRemark.setText(bill.remark.equals("") ? (bill.isIncome() ? "收入" : "支出"):bill.remark );
         viewHolder.billTime.setText(MyDateFormat.timeFormatter.format(bill.getTimeMills()));
     }
 
@@ -107,6 +109,6 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> im
         intent.putExtra("action","edit");
         intent.putExtra("id",id);
         intent.putExtra("prePosition",position);
-        mFragment.startActivityForResult(intent,HomeFragment.REQUEST_EDIT_BILL);
+        mFragment.startActivityForResult(intent, HomeFragment.REQUEST_EDIT_BILL);
     }
 }

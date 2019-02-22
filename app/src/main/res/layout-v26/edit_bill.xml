@@ -61,7 +61,7 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toEndOf="@+id/money_signal"
         app:layout_constraintTop_toTopOf="@+id/money_signal"
-        android:autofillHints="" tools:targetApi="o" />
+        android:importantForAutofill="no" />
 
     <TextView
         android:id="@+id/title_type"
@@ -123,7 +123,7 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title_remark"
-        android:importantForAutofill="no" tools:targetApi="o" />
+        android:importantForAutofill="no" />
 
 
     <TextView
@@ -171,7 +171,6 @@
         android:textAppearance="@android:style/TextAppearance.Material"
         android:textColor="@color/black"
         android:textSize="18sp"
-        android:textStyle="normal"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="@+id/title_date"
         app:layout_constraintTop_toBottomOf="@+id/title_date" />
@@ -197,7 +196,6 @@
         android:layout_marginEnd="16dp"
         android:background="@drawable/bg_my_button"
         android:ems="10"
-        android:text="@string/time"
         android:textAppearance="@android:style/TextAppearance.Material"
         android:textColor="@color/black"
         android:textSize="18sp"

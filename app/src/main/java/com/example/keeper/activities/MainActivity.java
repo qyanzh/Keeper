@@ -1,13 +1,10 @@
-package com.example.keeper;
+package com.example.keeper.activities;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.constraint.Group;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import com.example.keeper.HomeFragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -17,9 +14,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import org.litepal.LitePal;
+import com.example.keeper.Bill;
+import com.example.keeper.R;
+import com.example.keeper.fragments.HomeFragment;
+import com.example.keeper.fragments.StatusFragment;
+import com.example.keeper.mytools.MyDoubleClickListener;
 
-import java.util.function.IntBinaryOperator;
+import org.jetbrains.annotations.TestOnly;
+import org.litepal.LitePal;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,7 +29,9 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigation;
-    private Fragment homeFragment, statusFragment,currentFragment;
+    private Fragment currentFragment;
+    private HomeFragment homeFragment;
+    private StatusFragment statusFragment;
     static Group emptyListImage;
 
 
@@ -63,6 +67,21 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setOnClickListener(new MyDoubleClickListener() {
+            @Override
+            public void onSingleClick() {
+                if(currentFragment == homeFragment) {
+                    homeFragment.fab.show();
+                }
+            }
+            @Override
+            public void onDoubleClick() {
+                if(currentFragment == homeFragment) {
+                    homeFragment.billRecyclerView.scrollToPosition(0);
+                }
+            }
+        });
+        //toolbar.setOnClickListener(v->homeFragment.billRecyclerView.scrollToPosition(0));
         mDrawerLayout = findViewById(R.id.drawer_layout);
         mNavigation = findViewById(R.id.nav_view);
         mNavigation.setCheckedItem(R.id.nav_menu_home);
@@ -104,9 +123,19 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.query:
                 //TODO: select * from databases.
+                deleteDatabase();
                 break;
         }
         return true;
+    }
+
+    @TestOnly
+    public void deleteDatabase() {
+        LitePal.deleteAll(Bill.class);
+        homeFragment.billList.clear();
+        homeFragment.adapter.notifyDataSetChanged();
+        homeFragment.checkListEmpty();
+        homeFragment.fab.show();
     }
 
     @Override

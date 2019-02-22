@@ -1,4 +1,4 @@
-package com.example.keeper;
+package com.example.keeper.activities;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -10,6 +10,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,10 +20,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.example.keeper.Bill;
+import com.example.keeper.R;
+import com.example.keeper.mytools.MyDateFormat;
 
 import org.litepal.LitePal;
 
@@ -35,10 +40,10 @@ import java.util.TimerTask;
 
 public class EditBillActivity extends AppCompatActivity {
 
+    private static final String TAG = "EditBillActivity";
     Toolbar toolbar;
     EditText inputMoneyAmount;
-    RadioButton radioButtonPayout;
-    RadioButton radioButtonIncome;
+    RadioGroup radioGroupType;
     EditText inputRemarks;
     Spinner spinnerCategory;
     List<String> categories;
@@ -60,13 +65,13 @@ public class EditBillActivity extends AppCompatActivity {
         } else if (action.equals("edit")) {
             long id = intent.getLongExtra("id", -1);
             prePosition = intent.getIntExtra("prePosition", -1);
-            bill = (Bill) LitePal.find(Bill.class, id).clone();
+            bill = (Bill) (LitePal.find(Bill.class, id)).clone();
         }
         initToolBar();
         initAmountEditor();
+        initSpinner();
         initRadioButtons();
         initRemarksEditor();
-        initSpinner();
         initTimeButton();
     }
 
@@ -138,7 +143,7 @@ public class EditBillActivity extends AppCompatActivity {
     public void saveBill() {
         if (!inputMoneyAmount.getText().toString().equals("")) {
             float price = Float.parseFloat(inputMoneyAmount.getText().toString());
-            if (bill.isPAYOUT()) price = -price;
+            if (bill.isPayout()) price = -price;
             bill.setPrice(price);
         }
         String remark = inputRemarks.getText().toString();
@@ -185,24 +190,26 @@ public class EditBillActivity extends AppCompatActivity {
     }
 
     public void initRadioButtons() {
-        radioButtonIncome = findViewById(R.id.radioButton_income);
-        radioButtonPayout = findViewById(R.id.radioButton_payout);
-        radioButtonIncome.setOnClickListener(v -> {
-            radioButtonPayout.setChecked(false);
-            bill.setType(Bill.INCOME);
-            bill.setCategory("转账");
-            refreshSpinner();
+        radioGroupType = findViewById(R.id.radio_group_type);
+        radioGroupType.setOnCheckedChangeListener((group,checkedId)->{
+            switch (checkedId) {
+                case R.id.radioButton_income:
+                    bill.setType(Bill.INCOME);
+                    bill.setCategory("转账");
+                    refreshSpinner();
+                    break;
+                case R.id.radioButton_payout:
+                    bill.setType(Bill.PAYOUT);
+                    bill.setCategory("消费");
+                    refreshSpinner();
+                    break;
+            }
         });
-        radioButtonPayout.setOnClickListener(v -> {
-            radioButtonIncome.setChecked(false);
-            bill.setType(Bill.PAYOUT);
-            bill.setCategory("消费");
-            refreshSpinner();
-        });
-        if (bill.isINCOME()) {
-            radioButtonIncome.setChecked(true);
+
+        if (bill.isIncome()) {
+            radioGroupType.check(R.id.radioButton_income);
         } else {
-            radioButtonPayout.setChecked(true);
+            radioGroupType.check(R.id.radioButton_payout);
         }
     }
 
@@ -213,7 +220,7 @@ public class EditBillActivity extends AppCompatActivity {
 
     public void initSpinner() {
         spinnerCategory = findViewById(R.id.spinner_category);
-        if (bill.isPAYOUT()) {
+        if (bill.isPayout()) {
             categories = new ArrayList<>(Arrays.asList(Bill.payoutCategory));
         } else {
             categories = new ArrayList<>(Arrays.asList(Bill.incomeCategory));
@@ -232,6 +239,7 @@ public class EditBillActivity extends AppCompatActivity {
                 Toast.makeText(EditBillActivity.this, "onNothingSelected", Toast.LENGTH_SHORT).show();
             }
         });
+        Log.d(TAG, "initSpinner: ");
         for (int i = 0; i < spinnerAdapter.getCount(); ++i) {
             if (spinnerAdapter.getItem(i).equals(bill.getCategory())) {
                 spinnerCategory.setSelection(i);
@@ -241,7 +249,7 @@ public class EditBillActivity extends AppCompatActivity {
     }
 
     public void refreshSpinner() {
-        if (bill.isPAYOUT()) {
+        if (bill.isPayout()) {
             categories = new ArrayList<>(Arrays.asList(Bill.payoutCategory));
         } else {
             categories = new ArrayList<>(Arrays.asList(Bill.incomeCategory));
@@ -255,23 +263,12 @@ public class EditBillActivity extends AppCompatActivity {
     private void initTimeButton() {
         buttonChooseDate = findViewById(R.id.editButton_date);
         buttonChooseTime = findViewById(R.id.editButton_time);
-        buttonChooseDate.setOnClickListener(this::showDatePickerDialog);
-        buttonChooseTime.setOnClickListener(this::showTimePickerDialog);
+        buttonChooseDate.setOnClickListener(v-> new DatePickerFragment().show(getSupportFragmentManager(),"datePicker"));
+        buttonChooseTime.setOnClickListener(v-> new TimePickerFragment().show(getSupportFragmentManager(),"timePicker"));
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(bill.getTimeMills());
         buttonChooseDate.setText(MyDateFormat.normalDateFormatter.format(c.getTime()));
         buttonChooseTime.setText(MyDateFormat.timeFormatter.format(c.getTime()));
-    }
-
-
-    public void showTimePickerDialog(View v) {
-        DialogFragment newFragment = new TimePickerFragment();
-        newFragment.show(getSupportFragmentManager(), "timePicker");
-    }
-
-    public void showDatePickerDialog(View v) {
-        DialogFragment newFragment = new DatePickerFragment();
-        newFragment.show(getSupportFragmentManager(), "datePicker");
     }
 
 
@@ -282,6 +279,7 @@ public class EditBillActivity extends AppCompatActivity {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Use the current time as the default values for the picker
             final Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(bill.getTimeMills());
             int hour = c.get(Calendar.HOUR_OF_DAY);
             int minute = c.get(Calendar.MINUTE);
             // Create a new instance of TimePickerDialog and return it
@@ -292,11 +290,7 @@ public class EditBillActivity extends AppCompatActivity {
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             // Do something with the time chosen by the user
             Calendar c = Calendar.getInstance();
-            c.setTimeInMillis(bill.getTimeMills());
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
-            c.set(year, month, day, hourOfDay, minute);
+            c.set(bill.getYear(), bill.getMonth()-1, bill.getDay(), hourOfDay, minute);
             bill.setTime(c.getTimeInMillis());
             buttonChooseTime.setText(MyDateFormat.timeFormatter.format(c.getTime()));
         }
@@ -309,6 +303,7 @@ public class EditBillActivity extends AppCompatActivity {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Use the current date as the default date in the picker
             final Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(bill.getTimeMills());
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
@@ -324,5 +319,4 @@ public class EditBillActivity extends AppCompatActivity {
         }
 
     }
-
 }

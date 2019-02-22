@@ -1,4 +1,4 @@
-package com.example.keeper;
+package com.example.keeper.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import com.example.keeper.R;
 
 public class StatusFragment extends Fragment {
     public static final String TAG = "statusfragment";

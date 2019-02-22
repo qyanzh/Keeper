@@ -7,8 +7,25 @@ import java.util.Comparator;
 
 public class Bill extends LitePalSupport implements Cloneable {
 
-    static class CompareBillByTime implements Comparator<Bill> {
+    public Bill() {
+        this.price = 0;
+        this.type = PAYOUT;
+        this.category = "消费";
+        this.remark = "";
+        this.setTime(Calendar.getInstance().getTimeInMillis());
+    }
 
+    @Override
+    public Object clone(){
+        try {
+            return super.clone();
+        }catch (CloneNotSupportedException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static class CompareBillByTime implements Comparator<Bill> {
         @Override
         public int compare(Bill o1, Bill o2) {
             return Long.compare(o2.timeMills, o1.timeMills);
@@ -48,27 +65,9 @@ public class Bill extends LitePalSupport implements Cloneable {
     }
 
 
-    public Bill() {
-        this.price = 0;
-        this.type = PAYOUT;
-        this.category = "消费";
-        this.remark = "";
-        this.setTime(Calendar.getInstance().getTimeInMillis());
-    }
-
-    @Override
-    protected Object clone() {
-        Bill bill = null;
-        try {
-            bill = (Bill) super.clone();   //浅复制
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-        return bill;
-    }
+    long id;
 
     boolean type;
-
     float price;
 
     String category;
@@ -79,7 +78,16 @@ public class Bill extends LitePalSupport implements Cloneable {
 
     long timeMills;
 
-    long id;
+
+
+
+    public boolean isIncome() {
+        return INCOME == type;
+    }
+
+    public boolean isPayout() {
+        return PAYOUT == type;
+    }
 
     public long getId() {
         return id;
@@ -89,12 +97,12 @@ public class Bill extends LitePalSupport implements Cloneable {
         this.id = id;
     }
 
-    public boolean isINCOME() {
-        return INCOME == type;
+    public float getPrice() {
+        return price;
     }
 
-    public boolean isPAYOUT() {
-        return PAYOUT == type;
+    public void setPrice(float price) {
+        this.price = price;
     }
 
     public boolean isType() {
@@ -105,12 +113,12 @@ public class Bill extends LitePalSupport implements Cloneable {
         this.type = type;
     }
 
-    public float getPrice() {
-        return price;
+    public String getRemark() {
+        return remark;
     }
 
-    public void setPrice(float price) {
-        this.price = price;
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     public String getCategory() {
@@ -159,14 +167,6 @@ public class Bill extends LitePalSupport implements Cloneable {
 
     public void setMinute(int minute) {
         this.minute = minute;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
     }
 
 }
