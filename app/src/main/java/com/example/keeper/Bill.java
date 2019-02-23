@@ -1,36 +1,14 @@
 package com.example.keeper;
 
+import android.os.Parcelable;
+
 import org.litepal.crud.LitePalSupport;
+
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Comparator;
 
-
-public class Bill extends LitePalSupport implements Cloneable {
-
-    public Bill() {
-        this.price = 0;
-        this.type = PAYOUT;
-        this.category = "消费";
-        this.remark = "";
-        this.setTime(Calendar.getInstance().getTimeInMillis());
-    }
-
-    @Override
-    public Object clone(){
-        try {
-            return super.clone();
-        }catch (CloneNotSupportedException e){
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static class CompareBillByTime implements Comparator<Bill> {
-        @Override
-        public int compare(Bill o1, Bill o2) {
-            return Long.compare(o2.timeMills, o1.timeMills);
-        }
-    }
+public class Bill extends LitePalSupport implements Cloneable, Serializable {
 
     public static final boolean INCOME = true;
 
@@ -44,14 +22,43 @@ public class Bill extends LitePalSupport implements Cloneable {
             "消费", "餐饮", "缴费", "转账", "购物", "娱乐", "学习", "出行", "电影", "聚餐", "其它"
     };
 
+    private long id;
 
-    public long getTimeMills() {
-        return timeMills;
+    private float price;
+
+    private boolean type;
+
+    private String remark;
+
+    private String category;
+
+    private int year;
+    private int month;
+    private int day;
+    private int hour;
+    private int minute;
+
+    private long timeMills;
+
+
+    public Bill() {
+        this.price = 0;
+        this.type = PAYOUT;
+        this.remark = "";
+        this.category = "消费";
+        this.setTime(Calendar.getInstance().getTimeInMillis());
     }
 
-    public void setTimeMills(long timeMills) {
-        this.timeMills = timeMills;
+    @Override
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
+
 
     public void setTime(long timeMills) {
         Calendar c = Calendar.getInstance();
@@ -62,31 +69,6 @@ public class Bill extends LitePalSupport implements Cloneable {
         this.day = c.get(Calendar.DAY_OF_MONTH);
         this.hour = c.get(Calendar.HOUR_OF_DAY);
         this.minute = c.get(Calendar.MINUTE);
-    }
-
-
-    long id;
-
-    boolean type;
-    float price;
-
-    String category;
-
-    int year, month, day, hour, minute;
-
-    String remark;
-
-    long timeMills;
-
-
-
-
-    public boolean isIncome() {
-        return INCOME == type;
-    }
-
-    public boolean isPayout() {
-        return PAYOUT == type;
     }
 
     public long getId() {
@@ -111,6 +93,14 @@ public class Bill extends LitePalSupport implements Cloneable {
 
     public void setType(boolean type) {
         this.type = type;
+    }
+
+    public boolean isIncome() {
+        return INCOME == type;
+    }
+
+    public boolean isPayout() {
+        return PAYOUT == type;
     }
 
     public String getRemark() {
@@ -167,6 +157,14 @@ public class Bill extends LitePalSupport implements Cloneable {
 
     public void setMinute(int minute) {
         this.minute = minute;
+    }
+
+    public long getTimeMills() {
+        return timeMills;
+    }
+
+    public void setTimeMills(long timeMills) {
+        this.timeMills = timeMills;
     }
 
 }

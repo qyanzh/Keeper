@@ -19,36 +19,37 @@ import com.example.keeper.Bill;
 import com.example.keeper.BillAdapter;
 import com.example.keeper.activities.EditBillActivity;
 import com.example.keeper.R;
+import com.example.keeper.mytools.MyBillTools;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 
 import org.jetbrains.annotations.TestOnly;
 import org.litepal.LitePal;
 
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 import static android.app.Activity.RESULT_OK;
 
 public class HomeFragment extends Fragment {
 
-    public static final String TAG = "homefragment";
+    public static final String TAG = "HomeFragment";
     public static final int REQUEST_ADD_BILL = 0;
     public static final int REQUEST_EDIT_BILL = 1;
     View view;
+    Group emptyListImage;
     public List<Bill> billList;
     public BillAdapter adapter;
     public RecyclerView billRecyclerView;
     public FloatingActionButton fab;
-    Group emptyListImage;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: ");
         view = inflater.inflate(R.layout.fragment_home, container, false);
-        emptyListImage = container.findViewById(R.id.empty_list_image);
+        if (container != null) {
+            emptyListImage = container.findViewById(R.id.empty_list_image);
+        }
         billList = getBillListFromDatabase();
         initView();
         return view;
@@ -56,7 +57,7 @@ public class HomeFragment extends Fragment {
 
     public void initView() {
         billRecyclerView = view.findViewById(R.id.home_recyclerview);
-        billRecyclerView.setLayoutManager( new LinearLayoutManager(getActivity()));
+        billRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new BillAdapter(this, billList);
         billRecyclerView.setAdapter(adapter);
         final StickyRecyclerHeadersDecoration headersDecoration = new StickyRecyclerHeadersDecoration(adapter);
@@ -76,7 +77,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0 ) {
+                if (dy > 0) {
                     fab.hide();
                 } else {
                     fab.show();
@@ -86,34 +87,22 @@ public class HomeFragment extends Fragment {
         checkListEmpty();
     }
 
-    public List<Bill> getBillListFromDatabase() {
-        List<Bill> billList = LitePal
+    public static List<Bill> getBillListFromDatabase() {
+
+        return LitePal
                 .where("")
                 .order("timeMills desc")
                 .find(Bill.class);
-        return billList;
     }
 
     @TestOnly
     public boolean addBillListRandomly() {
-        emptyListImage.setVisibility(View.INVISIBLE);
-        for(int i=0;i<10;++i) {
-            Bill bill = new Bill();
-            bill.setPrice(new Random().nextInt()%200);
-            if(bill.getPrice()<0) bill.setType(Bill.PAYOUT);
-            else bill.setType(Bill.INCOME);
-            if(bill.isIncome()) {
-                bill.setCategory(Bill.incomeCategory[Math.abs(new Random().nextInt()%Bill.incomeCategory.length)]);
-            } else {
-                bill.setCategory(Bill.payoutCategory[Math.abs(new Random().nextInt()%Bill.payoutCategory.length)]);
-            }
-            Calendar c = Calendar.getInstance();
-            c.set(2018+i%2,new Random().nextInt()%12,new Random().nextInt()%27+1,new Random().nextInt()%24+1,new Random().nextInt()%60);
-            bill.setTime(c.getTimeInMillis());
+        MyBillTools.getBillListRandomly(10).forEach((bill -> {
             bill.save();
             onBillAdded(bill.getId());
-        }
+        }));
         billRecyclerView.scrollToPosition(0);
+        checkListEmpty();
         return true;
     }
 
@@ -153,10 +142,10 @@ public class HomeFragment extends Fragment {
             case "delete":
                 onBillDeleted(prePosition);
                 checkListEmpty();
-                Toast.makeText(getContext(),"已删除",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "已删除", Toast.LENGTH_SHORT).show();
                 break;
             case "edit":
-                onBillEdited(prePosition,id);
+                onBillEdited(prePosition, id);
                 Toast.makeText(getContext(), "已保存", Toast.LENGTH_SHORT).show();
                 break;
         }
@@ -165,7 +154,7 @@ public class HomeFragment extends Fragment {
 
     private void onBillAdded(long id) {
         Bill bill = LitePal.find(Bill.class, id);
-        int newPosition = Collections.binarySearch(billList, bill, new Bill.CompareBillByTime());
+        int newPosition = Collections.binarySearch(billList, bill, new MyBillTools.CompareBillByTime());
         if (newPosition < 0) newPosition = -newPosition - 1;
         billList.add(newPosition, bill);
         adapter.notifyItemInserted(newPosition);
@@ -177,13 +166,13 @@ public class HomeFragment extends Fragment {
         adapter.notifyItemRemoved(prePosition);
     }
 
-    private void onBillEdited(int prePosition,long id) {
+    private void onBillEdited(int prePosition, long id) {
         billList.remove(prePosition);
         Bill bill = LitePal.find(Bill.class, id);
-        int newPosition = Collections.binarySearch(billList, bill, new Bill.CompareBillByTime());
+        int newPosition = Collections.binarySearch(billList, bill, new MyBillTools.CompareBillByTime());
         if (newPosition < 0) newPosition = -newPosition - 1;
         billList.add(newPosition, bill);
-        if(newPosition == prePosition) {
+        if (newPosition == prePosition) {
             adapter.notifyItemChanged(prePosition);
         } else {
             adapter.notifyItemRemoved(prePosition);
@@ -193,7 +182,7 @@ public class HomeFragment extends Fragment {
     }
 
     public void checkListEmpty() {
-        if(billList.isEmpty()) {
+        if (billList.isEmpty()) {
             emptyListImage.setVisibility(View.VISIBLE);
             emptyListImage.requestLayout();
             fab.show();

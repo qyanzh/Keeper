@@ -6,16 +6,23 @@ import java.util.Date;
 
 public abstract class MyDoubleClickListener implements View.OnClickListener {
     private long lastClickTime;
-    private static long delayMills = 300;
-    public abstract void onSingleClick();
+    private long delayMills ;
+
+    public void onSingleClick(){}
     public abstract void onDoubleClick();
+
+    public MyDoubleClickListener(long delayMills) {
+        this.delayMills = delayMills;
+    }
+
     @Override
-    public void onClick(View v) {
+    public final void onClick(View v) {
         long currentTime = new Date().getTime();
         if(currentTime - lastClickTime < delayMills) {
             onDoubleClick();
+        } else {
+            onSingleClick();
         }
         lastClickTime = currentTime;
-        onSingleClick();
     }
 }

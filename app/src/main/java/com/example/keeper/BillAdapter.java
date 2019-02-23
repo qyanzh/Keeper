@@ -19,10 +19,10 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> implements StickyRecyclerHeadersAdapter {
-    public static final DecimalFormat df = new DecimalFormat("+0.00;-0.00");
-    static int orange = Color.parseColor("#E8541E");
+    private static final DecimalFormat df = new DecimalFormat("+0.00;-0.00");
+    private static int orange = Color.parseColor("#E8541E");
     private List<Bill> mBillList;
-    Fragment mFragment;
+    private Fragment mFragment;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View billView;
@@ -31,7 +31,7 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> im
         TextView billRemark;
         TextView billTime;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             billView = view;
             billCategory = view.findViewById(R.id.bill_category);
@@ -56,7 +56,6 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> im
             int position = holder.getAdapterPosition();
             Bill bill = mBillList.get(position);
             editBill(bill.getId(),position);
-            //Snackbar.make(v,""+position,Snackbar.LENGTH_SHORT).show();
         });
         return holder;
     }
@@ -64,10 +63,10 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> im
     @Override
     public void onBindViewHolder(@NonNull BillAdapter.ViewHolder viewHolder, int i) {
         Bill bill = mBillList.get(i);
-        viewHolder.billCategory.setText(bill.category);
+        viewHolder.billCategory.setText(bill.getCategory());
         float price = bill.getPrice();
         if(price == 0) {
-            viewHolder.billPrice.setText("0.00");
+            viewHolder.billPrice.setText(mFragment.getString(R.string.zero));
         } else {
             viewHolder.billPrice.setText(df.format(price));
         }
@@ -76,7 +75,7 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> im
         } else {
             viewHolder.billPrice.setTextColor(Color.BLACK);
         }
-        viewHolder.billRemark.setText(bill.remark.equals("") ? (bill.isIncome() ? "收入" : "支出"):bill.remark );
+        viewHolder.billRemark.setText(bill.getRemark().equals("") ? (bill.isIncome() ?mFragment.getString(R.string.income) : mFragment.getString(R.string.payout)):bill.getRemark() );
         viewHolder.billTime.setText(MyDateFormat.timeFormatter.format(bill.getTimeMills()));
     }
 
@@ -95,7 +94,7 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> im
     public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder, int position) {
         TextView textView = holder.itemView.findViewById(R.id.header_title);
         Bill bill = mBillList.get(position);
-        String time = MyDateFormat.format(bill.getTimeMills(), MyDateFormat.FORMATTYPE.DAY);
+        String time = MyDateFormat.format(bill.getTimeMills(), false);
         textView.setText(time);
     }
 

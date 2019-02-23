@@ -2,15 +2,13 @@ package com.example.keeper.activities;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.DialogFragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +25,8 @@ import android.widget.Toast;
 
 import com.example.keeper.Bill;
 import com.example.keeper.R;
+import com.example.keeper.fragments.DatePickerFragment;
+import com.example.keeper.fragments.TimePickerFragment;
 import com.example.keeper.mytools.MyDateFormat;
 
 import org.litepal.LitePal;
@@ -38,9 +38,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class EditBillActivity extends AppCompatActivity {
-
-    private static final String TAG = "EditBillActivity";
+public class EditBillActivity extends AppCompatActivity
+        implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
     Toolbar toolbar;
     EditText inputMoneyAmount;
     RadioGroup radioGroupType;
@@ -48,8 +47,8 @@ public class EditBillActivity extends AppCompatActivity {
     Spinner spinnerCategory;
     List<String> categories;
     ArrayAdapter<String> spinnerAdapter;
-    static Button buttonChooseDate;
-    static Button buttonChooseTime;
+    Button editButtonDate;
+    Button editButtonTime;
     static Bill bill;
     String action;
     int prePosition;
@@ -57,7 +56,7 @@ public class EditBillActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.edit_bill);
+        setContentView(R.layout.activity_edit_bill);
         Intent intent = getIntent();
         action = intent.getStringExtra("action");
         if (action.equals("add")) {
@@ -72,18 +71,22 @@ public class EditBillActivity extends AppCompatActivity {
         initSpinner();
         initRadioButtons();
         initRemarksEditor();
-        initTimeButton();
+        initTimeBox();
+
     }
 
     public void initToolBar() {
         toolbar = findViewById(R.id.toolbar_edit);
         if (action.equals("edit")) {
-            toolbar.setTitle("编辑");
+            toolbar.setTitle(getString(R.string.edit));
         } else {
-            toolbar.setTitle("新建");
+            toolbar.setTitle(getString(R.string.add));
         }
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     @Override
@@ -102,8 +105,8 @@ public class EditBillActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(action.equals("add")) {
-            confirmDialog("放弃本次操作?", "back");
+        if (action.equals("add")) {
+            showConfirmDialog(getString(R.string.giveUpOperationQM), "back");
         } else {
             super.onBackPressed();
         }
@@ -119,42 +122,35 @@ public class EditBillActivity extends AppCompatActivity {
                 saveBill();
                 break;
             case R.id.delete:
-                confirmDialog("确认删除?", "delete");
+                showConfirmDialog(getString(R.string.confirmDeleteQM), "delete");
                 break;
         }
         return true;
     }
 
-    public void confirmDialog(String content, String action) {
+    public void showConfirmDialog(String content, String action) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(content)
-                .setPositiveButton("确认", (dialog, id) -> {
+                .setPositiveButton(getString(R.string.confirm), (dialog, id) -> {
                     if (action.equals("delete")) {
                         deleteBill();
                     } else if (action.equals("back")) {
                         super.onBackPressed();
                     }
                 })
-                .setNegativeButton("取消", (dialog, id) -> {
+                .setNegativeButton(getString(R.string.cancel), (dialog, id) -> {
                 });
         builder.create().show();
     }
 
     public void saveBill() {
-        if (!inputMoneyAmount.getText().toString().equals("")) {
-            float price = Float.parseFloat(inputMoneyAmount.getText().toString());
-            if (bill.isPayout()) price = -price;
-            bill.setPrice(price);
-        }
-        String remark = inputRemarks.getText().toString();
-        bill.setRemark(remark);
+        saveEditTextData();
         bill.save();
-
         Intent intent = new Intent();
         intent.putExtra("id", bill.getId());
         if (action.equals("add")) {
             intent.putExtra("action", "add");
-        } else {
+        } else if (action.equals("edit")) {
             intent.putExtra("action", "edit");
             intent.putExtra("prePosition", prePosition);
         }
@@ -162,9 +158,18 @@ public class EditBillActivity extends AppCompatActivity {
         finish();
     }
 
+    public void saveEditTextData() {
+        if (!inputMoneyAmount.getText().toString().equals("")) {
+            float price = Float.parseFloat(inputMoneyAmount.getText().toString());
+            if (bill.isPayout()) price = -price;
+            bill.setPrice(price);
+        }
+        String remark = inputRemarks.getText().toString();
+        bill.setRemark(remark);
+    }
+
     public void deleteBill() {
         LitePal.delete(Bill.class, bill.getId());
-
         Intent intent = new Intent();
         intent.putExtra("action", "delete");
         intent.putExtra("prePosition", prePosition);
@@ -173,11 +178,11 @@ public class EditBillActivity extends AppCompatActivity {
     }
 
     private void initAmountEditor() {
+        float price = bill.getPrice();
         inputMoneyAmount = findViewById(R.id.editText_amount);
-        inputMoneyAmount.setFocusable(true);
-        inputMoneyAmount.requestFocus();
-        inputMoneyAmount.setText("" + (bill.getPrice() == 0 ? "" : Math.abs(bill.getPrice())));
-        if(action.equals("add")) {
+        if (price != 0) inputMoneyAmount.setText(String.valueOf(Math.abs(price)));
+        if (action.equals("add")) {
+            inputMoneyAmount.requestFocus();
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
@@ -191,19 +196,18 @@ public class EditBillActivity extends AppCompatActivity {
 
     public void initRadioButtons() {
         radioGroupType = findViewById(R.id.radio_group_type);
-        radioGroupType.setOnCheckedChangeListener((group,checkedId)->{
+        radioGroupType.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId) {
                 case R.id.radioButton_income:
                     bill.setType(Bill.INCOME);
                     bill.setCategory("转账");
-                    refreshSpinner();
                     break;
                 case R.id.radioButton_payout:
                     bill.setType(Bill.PAYOUT);
                     bill.setCategory("消费");
-                    refreshSpinner();
                     break;
             }
+            refreshSpinner();
         });
 
         if (bill.isIncome()) {
@@ -239,9 +243,8 @@ public class EditBillActivity extends AppCompatActivity {
                 Toast.makeText(EditBillActivity.this, "onNothingSelected", Toast.LENGTH_SHORT).show();
             }
         });
-        Log.d(TAG, "initSpinner: ");
         for (int i = 0; i < spinnerAdapter.getCount(); ++i) {
-            if (spinnerAdapter.getItem(i).equals(bill.getCategory())) {
+            if(bill.getCategory().equals(spinnerAdapter.getItem(i))) {
                 spinnerCategory.setSelection(i);
                 break;
             }
@@ -260,63 +263,41 @@ public class EditBillActivity extends AppCompatActivity {
         spinnerCategory.setSelection(0);
     }
 
-    private void initTimeButton() {
-        buttonChooseDate = findViewById(R.id.editButton_date);
-        buttonChooseTime = findViewById(R.id.editButton_time);
-        buttonChooseDate.setOnClickListener(v-> new DatePickerFragment().show(getSupportFragmentManager(),"datePicker"));
-        buttonChooseTime.setOnClickListener(v-> new TimePickerFragment().show(getSupportFragmentManager(),"timePicker"));
+    private void initTimeBox() {
+        editButtonDate = findViewById(R.id.editButton_date);
+        editButtonTime = findViewById(R.id.editButton_time);
+        editButtonDate.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("bill", bill);
+            DatePickerFragment datePickerFragment = new DatePickerFragment();
+            datePickerFragment.setArguments(bundle);
+            datePickerFragment.show(getSupportFragmentManager(), "datePicker");
+        });
+        editButtonTime.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("bill", bill);
+            TimePickerFragment timePickerFragment = new TimePickerFragment();
+            timePickerFragment.setArguments(bundle);
+            timePickerFragment.show(getSupportFragmentManager(), "timePicker");
+        });
+        editButtonDate.setText(MyDateFormat.format(bill.getTimeMills(), false));
+        editButtonTime.setText(MyDateFormat.timeFormatter.format(bill.getTimeMills()));
+    }
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int month, int day) {
         Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(bill.getTimeMills());
-        buttonChooseDate.setText(MyDateFormat.normalDateFormatter.format(c.getTime()));
-        buttonChooseTime.setText(MyDateFormat.timeFormatter.format(c.getTime()));
+        c.set(year, month, day, bill.getHour(), bill.getMinute());
+        bill.setTime(c.getTimeInMillis());
+        editButtonDate.setText(MyDateFormat.format(bill.getTimeMills(), false));
     }
 
-
-    public static class TimePickerFragment extends DialogFragment
-            implements TimePickerDialog.OnTimeSetListener {
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the current time as the default values for the picker
-            final Calendar c = Calendar.getInstance();
-            c.setTimeInMillis(bill.getTimeMills());
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
-            // Create a new instance of TimePickerDialog and return it
-            return new TimePickerDialog(getActivity(), this, hour, minute,
-                    true);
-        }
-
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            // Do something with the time chosen by the user
-            Calendar c = Calendar.getInstance();
-            c.set(bill.getYear(), bill.getMonth()-1, bill.getDay(), hourOfDay, minute);
-            bill.setTime(c.getTimeInMillis());
-            buttonChooseTime.setText(MyDateFormat.timeFormatter.format(c.getTime()));
-        }
+    @Override
+    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+        Calendar c = Calendar.getInstance();
+        c.set(bill.getYear(), bill.getMonth() - 1, bill.getDay(), hourOfDay, minute);
+        bill.setTime(c.getTimeInMillis());
+        editButtonTime.setText(MyDateFormat.timeFormatter.format(bill.getTimeMills()));
     }
 
-    public static class DatePickerFragment extends DialogFragment
-            implements DatePickerDialog.OnDateSetListener {
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the current date as the default date in the picker
-            final Calendar c = Calendar.getInstance();
-            c.setTimeInMillis(bill.getTimeMills());
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
-            // Create a new instance of DatePickerDialog and return it
-            return new DatePickerDialog(getActivity(), this, year, month, day);
-        }
-
-        public void onDateSet(DatePicker view, int year, int month, int day) {
-            Calendar c = Calendar.getInstance();
-            c.set(year, month, day, bill.getHour(), bill.getMinute());
-            bill.setTime(c.getTimeInMillis());
-            buttonChooseDate.setText(MyDateFormat.normalDateFormatter.format(c.getTime()));
-        }
-
-    }
 }

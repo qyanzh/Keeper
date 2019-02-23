@@ -7,6 +7,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -26,15 +27,12 @@ import org.litepal.LitePal;
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "MainActivity";
-    private Toolbar toolbar;
+    Toolbar toolbar;
     private DrawerLayout mDrawerLayout;
-    private NavigationView mNavigation;
     private Fragment currentFragment;
     private HomeFragment homeFragment;
     private StatusFragment statusFragment;
-    static Group emptyListImage;
-
-
+    Group emptyListImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,27 +51,24 @@ public class MainActivity extends AppCompatActivity {
             Bill welcome = new Bill();
             welcome.setPrice(0);
             welcome.setType(Bill.INCOME);
-            welcome.setCategory("欢迎!");
-            welcome.setRemark("点击加号创建一条新记录");
+            welcome.setCategory(getString(R.string.welcome));
+            welcome.setRemark(getString(R.string.clickFabToAdd));
             welcome.save();
             SharedPreferences.Editor editor = sp.edit();
             editor.putBoolean("isFirstOpen", false);
-            editor.commit();
+            editor.apply();
         }
     }
 
     private void initView() {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar!=null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
+        }
         toolbar.setOnClickListener(new MyDoubleClickListener() {
-            @Override
-            public void onSingleClick() {
-                if(currentFragment == homeFragment) {
-                    homeFragment.fab.show();
-                }
-            }
             @Override
             public void onDoubleClick() {
                 if(currentFragment == homeFragment) {
@@ -81,16 +76,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        //toolbar.setOnClickListener(v->homeFragment.billRecyclerView.scrollToPosition(0));
         mDrawerLayout = findViewById(R.id.drawer_layout);
-        mNavigation = findViewById(R.id.nav_view);
+        NavigationView mNavigation = findViewById(R.id.nav_view);
         mNavigation.setCheckedItem(R.id.nav_menu_home);
         mNavigation.setNavigationItemSelectedListener(this::onNavigationItemSelected);
         if (homeFragment == null) homeFragment = new HomeFragment();
         if (statusFragment == null) statusFragment = new StatusFragment();
         getSupportFragmentManager().beginTransaction()
-            .add(R.id.home_fragment_container, homeFragment,"homefragment")
-            .add(R.id.home_fragment_container, statusFragment,"statusfragment")
+            .add(R.id.home_fragment_container, homeFragment,HomeFragment.TAG)
+            .add(R.id.home_fragment_container, statusFragment,StatusFragment.TAG)
             .hide(statusFragment)
             .commit();
         currentFragment = homeFragment;
@@ -121,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 break;
-            case R.id.query:
+            case R.id.delete_all:
                 //TODO: select * from databases.
                 deleteDatabase();
                 break;
@@ -158,19 +152,19 @@ public class MainActivity extends AppCompatActivity {
         switch (i.getItemId()) {
             case R.id.nav_menu_home:
                 showFragment(homeFragment);
-                toolbar.setTitle("记账");
+                toolbar.setTitle(getString(R.string.app_name));
                 break;
             case R.id.nav_menu_today:
                 showFragment(statusFragment);
-                toolbar.setTitle("今天");
+                toolbar.setTitle(getString(R.string.daily));
                 break;
             case R.id.nav_menu_monthly:
                 showFragment(statusFragment);
-                toolbar.setTitle("本月");
+                toolbar.setTitle(getString(R.string.monthly));
                 break;
             case R.id.nav_menu_yearly:
                 showFragment(statusFragment);
-                toolbar.setTitle("年度");
+                toolbar.setTitle(getString(R.string.yearly));
                 break;
         }
         mDrawerLayout.closeDrawers();
