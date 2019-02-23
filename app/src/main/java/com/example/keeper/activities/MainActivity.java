@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
         }
-        toolbar.setOnClickListener(new MyDoubleClickListener() {
+        toolbar.setOnClickListener(new MyDoubleClickListener(300) {
             @Override
             public void onDoubleClick() {
                 if(currentFragment == homeFragment) {
