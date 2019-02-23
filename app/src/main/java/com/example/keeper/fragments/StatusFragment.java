@@ -17,7 +17,7 @@ import com.example.keeper.R;
 import java.util.List;
 
 public class StatusFragment extends Fragment {
-    public static final String TAG = "statusfragment";
+    public static final String TAG = "StatusFragment";
 
     @Nullable
     @Override

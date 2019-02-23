@@ -5,9 +5,9 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -78,9 +78,9 @@ public class EditBillActivity extends AppCompatActivity
     public void initToolBar() {
         toolbar = findViewById(R.id.toolbar_edit);
         if (action.equals("edit")) {
-            toolbar.setTitle(getString(R.string.edit));
+            toolbar.setTitle(R.string.edit);
         } else {
-            toolbar.setTitle(getString(R.string.add));
+            toolbar.setTitle(R.string.add);
         }
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -131,14 +131,14 @@ public class EditBillActivity extends AppCompatActivity
     public void showConfirmDialog(String content, String action) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(content)
-                .setPositiveButton(getString(R.string.confirm), (dialog, id) -> {
+                .setPositiveButton(R.string.confirm, (dialog, id) -> {
                     if (action.equals("delete")) {
                         deleteBill();
                     } else if (action.equals("back")) {
                         super.onBackPressed();
                     }
                 })
-                .setNegativeButton(getString(R.string.cancel), (dialog, id) -> {
+                .setNegativeButton(R.string.cancel, (dialog, id) -> {
                 });
         builder.create().show();
     }
@@ -200,14 +200,14 @@ public class EditBillActivity extends AppCompatActivity
             switch (checkedId) {
                 case R.id.radioButton_income:
                     bill.setType(Bill.INCOME);
-                    bill.setCategory("转账");
                     break;
                 case R.id.radioButton_payout:
                     bill.setType(Bill.PAYOUT);
-                    bill.setCategory("消费");
                     break;
             }
             refreshSpinner();
+            bill.setCategory(spinnerAdapter.getItem(0));
+
         });
 
         if (bill.isIncome()) {
@@ -224,11 +224,7 @@ public class EditBillActivity extends AppCompatActivity
 
     public void initSpinner() {
         spinnerCategory = findViewById(R.id.spinner_category);
-        if (bill.isPayout()) {
-            categories = new ArrayList<>(Arrays.asList(Bill.payoutCategory));
-        } else {
-            categories = new ArrayList<>(Arrays.asList(Bill.incomeCategory));
-        }
+        onSwitchBillType();
         spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(spinnerAdapter);
@@ -252,15 +248,19 @@ public class EditBillActivity extends AppCompatActivity
     }
 
     public void refreshSpinner() {
-        if (bill.isPayout()) {
-            categories = new ArrayList<>(Arrays.asList(Bill.payoutCategory));
-        } else {
-            categories = new ArrayList<>(Arrays.asList(Bill.incomeCategory));
-        }
+        onSwitchBillType();
         spinnerAdapter.clear();
         spinnerAdapter.addAll(categories);
         spinnerAdapter.notifyDataSetChanged();
         spinnerCategory.setSelection(0);
+    }
+
+    public void onSwitchBillType() {
+        if (bill.isPayout()) {
+            categories = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.payoutCategory)));
+        } else {
+            categories = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.incomeCategory)));
+        }
     }
 
     private void initTimeBox() {

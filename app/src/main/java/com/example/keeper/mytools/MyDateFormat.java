@@ -1,10 +1,11 @@
 package com.example.keeper.mytools;
 
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 public class MyDateFormat {
+    //TODO:getDateTimeInstance();
     public static SimpleDateFormat sameYearFormatter = new SimpleDateFormat("MM月dd日");
     public static SimpleDateFormat normalDateFormatter = new SimpleDateFormat("yyyy年MM月dd日");
     public static SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");

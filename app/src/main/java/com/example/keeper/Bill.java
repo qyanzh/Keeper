@@ -1,12 +1,10 @@
 package com.example.keeper;
 
-import android.os.Parcelable;
 
 import org.litepal.crud.LitePalSupport;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.Comparator;
 
 public class Bill extends LitePalSupport implements Cloneable, Serializable {
 
@@ -14,13 +12,6 @@ public class Bill extends LitePalSupport implements Cloneable, Serializable {
 
     public static final boolean PAYOUT = false;
 
-    public static String[] incomeCategory = {
-            "转账", "生活费", "红包", "奖学金", "工资", "其它"
-    };
-
-    public static String[] payoutCategory = {
-            "消费", "餐饮", "缴费", "转账", "购物", "娱乐", "学习", "出行", "电影", "聚餐", "其它"
-    };
 
     private long id;
 

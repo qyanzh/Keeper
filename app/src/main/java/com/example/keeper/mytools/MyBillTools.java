@@ -12,6 +12,14 @@ import java.util.Random;
 
 public class MyBillTools {
 
+    private static String[] incomeCategory = {
+            "转账", "生活费", "红包", "奖学金", "工资", "其它"
+    };
+
+    private static String[] payoutCategory = {
+            "消费", "餐饮", "缴费", "转账", "购物", "娱乐", "学习", "出行", "电影", "聚餐", "其它"
+    };
+
     public static class CompareBillByTime implements Comparator<Bill> {
         @Override
         public int compare(Bill o1, Bill o2) {
@@ -29,9 +37,9 @@ public class MyBillTools {
             if (bill.getPrice() < 0) bill.setType(Bill.PAYOUT);
             else bill.setType(Bill.INCOME);
             if (bill.isIncome()) {
-                bill.setCategory(Bill.incomeCategory[Math.abs(new Random().nextInt() % Bill.incomeCategory.length)]);
+                bill.setCategory(incomeCategory[Math.abs(new Random().nextInt() % incomeCategory.length)]);
             } else {
-                bill.setCategory(Bill.payoutCategory[Math.abs(new Random().nextInt() % Bill.payoutCategory.length)]);
+                bill.setCategory(payoutCategory[Math.abs(new Random().nextInt() % payoutCategory.length)]);
             }
             Calendar c = Calendar.getInstance();
             int year = c.get(Calendar.YEAR);

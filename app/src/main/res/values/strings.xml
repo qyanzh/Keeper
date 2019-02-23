@@ -9,6 +9,8 @@
     <string name="daily">日报</string>
     <string name="monthly">月度</string>
     <string name="yearly">年度</string>
+    <string name="today">今天</string>
+    <string name="yesterday">昨天</string>
 
     <string name="price">金额</string>
     <string name="currency_symbol">¥</string>
@@ -31,5 +33,7 @@
     <string name="confirm">确认</string>
     <string name="cancel">取消</string>
     <string name="done">完成</string>
+    <string name="saved">已保存</string>
+    <string name="deleted">已删除</string>
 
 </resources>

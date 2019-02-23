@@ -17,8 +17,8 @@ import android.widget.Toast;
 
 import com.example.keeper.Bill;
 import com.example.keeper.BillAdapter;
-import com.example.keeper.activities.EditBillActivity;
 import com.example.keeper.R;
+import com.example.keeper.activities.EditBillActivity;
 import com.example.keeper.mytools.MyBillTools;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 
@@ -137,16 +137,16 @@ public class HomeFragment extends Fragment {
             case "add":
                 onBillAdded(id);
                 emptyListImage.setVisibility(View.INVISIBLE);
-                Toast.makeText(getContext(), "已保存", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.saved, Toast.LENGTH_SHORT).show();
                 break;
             case "delete":
                 onBillDeleted(prePosition);
                 checkListEmpty();
-                Toast.makeText(getContext(), "已删除", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.deleted, Toast.LENGTH_SHORT).show();
                 break;
             case "edit":
                 onBillEdited(prePosition, id);
-                Toast.makeText(getContext(), "已保存", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.saved, Toast.LENGTH_SHORT).show();
                 break;
         }
         fab.show();

@@ -152,19 +152,19 @@ public class MainActivity extends AppCompatActivity {
         switch (i.getItemId()) {
             case R.id.nav_menu_home:
                 showFragment(homeFragment);
-                toolbar.setTitle(getString(R.string.app_name));
+                toolbar.setTitle(R.string.app_name);
                 break;
             case R.id.nav_menu_today:
                 showFragment(statusFragment);
-                toolbar.setTitle(getString(R.string.daily));
+                toolbar.setTitle(R.string.daily);
                 break;
             case R.id.nav_menu_monthly:
                 showFragment(statusFragment);
-                toolbar.setTitle(getString(R.string.monthly));
+                toolbar.setTitle(R.string.monthly);
                 break;
             case R.id.nav_menu_yearly:
                 showFragment(statusFragment);
-                toolbar.setTitle(getString(R.string.yearly));
+                toolbar.setTitle(R.string.yearly);
                 break;
         }
         mDrawerLayout.closeDrawers();
