@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import com.example.keeper.Bill;
 import com.example.keeper.BillAdapter;
 import com.example.keeper.R;
+import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 
 import org.litepal.LitePal;
 
@@ -45,14 +46,14 @@ public class QueryFragment extends Fragment {
         billList = LitePal.where(getMergedQueryString()).order("timeMills desc").find(Bill.class);
         adapter = new BillAdapter(this, billList);
         billRecyclerView.setAdapter(adapter);
-//        final StickyRecyclerHeadersDecoration headersDecoration = new StickyRecyclerHeadersDecoration(adapter);
-//        billRecyclerView.addItemDecoration(headersDecoration);
-//        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-//            @Override
-//            public void onChanged() {
-//                headersDecoration.invalidateHeaders();
-//            }
-//        });
+        final StickyRecyclerHeadersDecoration headersDecoration = new StickyRecyclerHeadersDecoration(adapter);
+        billRecyclerView.addItemDecoration(headersDecoration);
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                headersDecoration.invalidateHeaders();
+            }
+        });
         return view;
     }
 
@@ -74,5 +75,6 @@ public class QueryFragment extends Fragment {
         billList.clear();
         billList.addAll(LitePal.where(getMergedQueryString()).order("timeMills desc").find(Bill.class));
         adapter.notifyDataSetChanged();
+        billRecyclerView.invalidateItemDecorations();
     }
 }

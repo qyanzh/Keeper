@@ -82,11 +82,7 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> im
         } else {
             viewHolder.billRemark.setText(bill.getRemark());
         }
-        if (mFragment instanceof HomeFragment) {
-            viewHolder.billTime.setText(MyDateFormat.timeFormatter.format(bill.getTimeMills()));
-        } else {
-            viewHolder.billTime.setText(MyDateFormat.formatWithTime(bill.getTimeMills(), false));
-        }
+        viewHolder.billTime.setText(MyDateFormat.timeFormatter.format(bill.getTimeMills()));
     }
 
     @Override
