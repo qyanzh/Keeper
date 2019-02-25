@@ -52,11 +52,13 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> im
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.bill_item, viewGroup, false);
         final ViewHolder holder = new ViewHolder(view);
-        holder.billView.setOnClickListener(v -> {
-            int position = holder.getAdapterPosition();
-            Bill bill = mBillList.get(position);
-            editBill(bill.getId(), position);
-        });
+        if (mFragment instanceof HomeFragment) {
+            holder.billView.setOnClickListener(v -> {
+                int position = holder.getAdapterPosition();
+                Bill bill = mBillList.get(position);
+                editBill(bill.getId(), position);
+            });
+        }
         return holder;
     }
 
@@ -80,7 +82,11 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> im
         } else {
             viewHolder.billRemark.setText(bill.getRemark());
         }
-        viewHolder.billTime.setText(MyDateFormat.timeFormatter.format(bill.getTimeMills()));
+        if (mFragment instanceof HomeFragment) {
+            viewHolder.billTime.setText(MyDateFormat.timeFormatter.format(bill.getTimeMills()));
+        } else {
+            viewHolder.billTime.setText(MyDateFormat.formatWithTime(bill.getTimeMills(), false));
+        }
     }
 
     @Override

@@ -240,7 +240,7 @@ public class EditBillActivity extends AppCompatActivity
             }
         });
         for (int i = 0; i < spinnerAdapter.getCount(); ++i) {
-            if(bill.getCategory().equals(spinnerAdapter.getItem(i))) {
+            if (bill.getCategory().equals(spinnerAdapter.getItem(i))) {
                 spinnerCategory.setSelection(i);
                 break;
             }
