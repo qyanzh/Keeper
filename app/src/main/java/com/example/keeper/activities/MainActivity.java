@@ -2,27 +2,29 @@ package com.example.keeper.activities;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.constraint.Group;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.example.keeper.Bill;
+import com.example.keeper.BillItem;
 import com.example.keeper.R;
-import com.example.keeper.fragments.DateQueryFragment;
+import com.example.keeper.fragments.BillListFragment;
 import com.example.keeper.fragments.HomeFragment;
-import com.example.keeper.fragments.QueryFragment;
+import com.example.keeper.fragments.SumBillListFragment;
+import com.example.keeper.mytools.MyBundleHelper;
 import com.example.keeper.mytools.MyDoubleClickListener;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 import org.litepal.LitePal;
 
@@ -30,23 +32,31 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import static com.example.keeper.fragments.SumBillListFragment.DAILY_FRAGMENT_TAG;
+import static com.example.keeper.fragments.SumBillListFragment.HOME_FRAGMENT_TAG;
+import static com.example.keeper.fragments.SumBillListFragment.MONTHLY_FRAGMENT_TAG;
+import static com.example.keeper.fragments.SumBillListFragment.YEARLY_FRAGMENT_TAG;
+import static java.util.Calendar.DAY_OF_MONTH;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
+
+
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "MainActivity";
-    public static final String HOME_FRAGMENT_TAG = "HomeFragment";
-    public static final String YEARLY_FRAGMENT_TAG = "YearlyFragment";
-    public static final String MONTHLY_FRAGMENT_TAG = "MonthlyFragment";
-    public static final String DAILY_FRAGMENT_TAG = "DailyFragment";
+
 
     Toolbar toolbar;
+    NavigationView mNavigation;
     private DrawerLayout mDrawerLayout;
-    private Fragment currentFragment;
+    private BillListFragment currentFragment;
     private HomeFragment homeFragment;
-    DateQueryFragment yearlyFragment;
-    DateQueryFragment monthlyFragment;
-    DateQueryFragment dailyFragment;
-    List<QueryFragment> queryFragments = new ArrayList<>();
-    Group emptyListImage;
+    SumBillListFragment yearlyFragment;
+    SumBillListFragment monthlyFragment;
+    SumBillListFragment dailyFragment;
+    List<BillListFragment> mFragments = new ArrayList<>();
+    public Group emptyListImage;
+    public FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +67,9 @@ public class MainActivity extends AppCompatActivity {
         welcome();
         if (savedInstanceState != null) {
             homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag(HOME_FRAGMENT_TAG);
-            yearlyFragment = (DateQueryFragment) getSupportFragmentManager().findFragmentByTag(YEARLY_FRAGMENT_TAG);
-            monthlyFragment = (DateQueryFragment) getSupportFragmentManager().findFragmentByTag(MONTHLY_FRAGMENT_TAG);
-            dailyFragment = (DateQueryFragment) getSupportFragmentManager().findFragmentByTag(DAILY_FRAGMENT_TAG);
+            yearlyFragment = (SumBillListFragment) getSupportFragmentManager().findFragmentByTag(YEARLY_FRAGMENT_TAG);
+            monthlyFragment = (SumBillListFragment) getSupportFragmentManager().findFragmentByTag(MONTHLY_FRAGMENT_TAG);
+            dailyFragment = (SumBillListFragment) getSupportFragmentManager().findFragmentByTag(DAILY_FRAGMENT_TAG);
         }
         initView();
     }
@@ -68,9 +78,9 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sp = getSharedPreferences("isFirstOpen", MODE_PRIVATE);
         boolean isFirstOpen = sp.getBoolean("isFirstOpen", true);
         if (isFirstOpen) {
-            Bill welcome = new Bill();
+            BillItem welcome = new BillItem();
             welcome.setPrice(0);
-            welcome.setType(Bill.INCOME);
+            welcome.setType(BillItem.INCOME);
             welcome.setCategory(getString(R.string.welcome));
             welcome.setRemark(getString(R.string.clickFabToAdd));
             welcome.save();
@@ -81,6 +91,74 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        initToolBar();
+        fab = findViewById(R.id.fab);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        emptyListImage = findViewById(R.id.empty_list_image);
+        initFragment();
+        initNavigation();
+    }
+
+    private void initFragment() {
+
+        if (homeFragment == null) {
+            homeFragment = new HomeFragment();
+            mFragments.add(homeFragment);
+        }
+        if (yearlyFragment == null) {
+            yearlyFragment = new SumBillListFragment();
+            Calendar c = Calendar.getInstance();
+            Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.YEAR_MODE, c.get(YEAR));
+            bundle.putString("TAG", YEARLY_FRAGMENT_TAG);
+            yearlyFragment.setArguments(bundle);
+            mFragments.add(yearlyFragment);
+        }
+
+        if (monthlyFragment == null) {
+            monthlyFragment = new SumBillListFragment();
+            Calendar c = Calendar.getInstance();
+            Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.MONTH_MODE, c.get(YEAR), c.get(MONTH));
+            bundle.putString("TAG", MONTHLY_FRAGMENT_TAG);
+            monthlyFragment.setArguments(bundle);
+            mFragments.add(monthlyFragment);
+
+        }
+        if (dailyFragment == null) {
+            dailyFragment = new SumBillListFragment();
+            Calendar c = Calendar.getInstance();
+            Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.DAY_MODE, c.get(YEAR), c.get(MONTH), c.get(DAY_OF_MONTH));
+            bundle.putString("TAG", DAILY_FRAGMENT_TAG);
+            dailyFragment.setArguments(bundle);
+            mFragments.add(dailyFragment);
+        }
+
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        mFragments.forEach(mFragment -> {
+            if (!mFragment.isAdded()) {
+                ft.add(R.id.home_fragment_container, mFragment, mFragment.TAG);
+            }
+        });
+        mFragments.forEach(ft::hide);
+        ft.show(homeFragment).commit();
+        currentFragment = homeFragment;
+        //getSupportFragmentManager().executePendingTransactions();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        setFabClick();
+        currentFragment.checkListEmpty();
+        emptyListImage.requestLayout();
+    }
+
+    private void initNavigation() {
+        mNavigation = findViewById(R.id.nav_view);
+        mNavigation.setCheckedItem(R.id.nav_menu_home);
+        mNavigation.setNavigationItemSelectedListener(this::onNavigationItemSelected);
+    }
+
+    private void initToolBar() {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -91,83 +169,16 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setOnClickListener(new MyDoubleClickListener(300) {
             @Override
             public void onDoubleClick() {
-                if (currentFragment == homeFragment) {
-                    homeFragment.billRecyclerView.scrollToPosition(0);
-                }
+                currentFragment.billRecyclerView.scrollToPosition(0);
+                fab.show();
             }
         });
-        mDrawerLayout = findViewById(R.id.drawer_layout);
-        emptyListImage = findViewById(R.id.empty_list_image);
-        NavigationView mNavigation = findViewById(R.id.nav_view);
-        mNavigation.setCheckedItem(R.id.nav_menu_home);
-        mNavigation.setNavigationItemSelectedListener(this::onNavigationItemSelected);
-
-
-        if (homeFragment == null) {
-            homeFragment = new HomeFragment();
-        }
-
-        if (yearlyFragment == null) {
-            yearlyFragment = new DateQueryFragment();
-            Calendar c = Calendar.getInstance();
-            Bundle bundle = getDateQueryBundle(new String[]{"year"}, c.get(Calendar.YEAR));
-            bundle.putString("TAG", YEARLY_FRAGMENT_TAG);
-            yearlyFragment.setArguments(bundle);
-            queryFragments.add(yearlyFragment);
-        }
-
-        if (monthlyFragment == null) {
-            monthlyFragment = new DateQueryFragment();
-            Calendar c = Calendar.getInstance();
-            Bundle bundle = getDateQueryBundle(new String[]{"year", "month"}, c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1);
-            bundle.putString("TAG", MONTHLY_FRAGMENT_TAG);
-            monthlyFragment.setArguments(bundle);
-            queryFragments.add(monthlyFragment);
-
-        }
-        if (dailyFragment == null) {
-            dailyFragment = new DateQueryFragment();
-            Calendar c = Calendar.getInstance();
-            Bundle bundle = getDateQueryBundle(new String[]{"year", "month", "day"}, c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH));
-            bundle.putString("TAG", DAILY_FRAGMENT_TAG);
-            dailyFragment.setArguments(bundle);
-            queryFragments.add(dailyFragment);
-        }
-
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        if (!homeFragment.isAdded()) {
-            ft.add(R.id.home_fragment_container, homeFragment, HomeFragment.TAG);
-        }
-        queryFragments.forEach(queryFragment -> {
-            if (!queryFragment.isAdded()) {
-                ft.add(R.id.home_fragment_container, queryFragment, queryFragment.TAG);
-            }
-        });
-        queryFragments.forEach(ft::hide);
-        ft.show(homeFragment).commitNow();
-        currentFragment = homeFragment;
     }
 
-    @NotNull
-    private Bundle getDateQueryBundle(String[] queryConditions, int... dateArguments) {
-        int length = dateArguments.length;
-        String[] queryArguments = new String[length];
-        for (int i = 0; i < length; ++i) {
-            queryArguments[i] = String.valueOf(dateArguments[i]);
-        }
-        return getDateQueryBundle(queryConditions, queryArguments);
-    }
 
-    @NotNull
-    private Bundle getDateQueryBundle(String[] queryConditions, String[] queryArguments) {
-        Bundle bundle = new Bundle();
-        bundle.putStringArray("queryConditions", queryConditions);
-        bundle.putStringArray("queryArguments", queryArguments);
-        return bundle;
-    }
-
-    private void showFragment(Fragment selectedFragment) {
+    private void showFragment(BillListFragment selectedFragment) {
         if (currentFragment != selectedFragment) {
+            selectedFragment.reloadData();
             getSupportFragmentManager().beginTransaction()
                     .hide(currentFragment)
                     .show(selectedFragment)
@@ -190,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 break;
             case R.id.delete_all:
-                //TODO: select * from databases.
                 deleteDatabase();
                 break;
         }
@@ -199,11 +209,13 @@ public class MainActivity extends AppCompatActivity {
 
     @TestOnly
     public void deleteDatabase() {
-        LitePal.deleteAll(Bill.class);
-        homeFragment.billList.clear();
-        homeFragment.adapter.notifyDataSetChanged();
-        homeFragment.checkListEmpty();
-        homeFragment.fab.show();
+        LitePal.deleteAll(BillItem.class);
+        mFragments.forEach(mFragment -> {
+            mFragment.billItemList.clear();
+            mFragment.adapter.notifyDataSetChanged();
+            mFragment.checkListEmpty();
+        });
+        fab.show();
     }
 
     @Override
@@ -216,31 +228,55 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onNavigationItemSelected(MenuItem i) {
-        emptyListImage.requestLayout();
-        i.setChecked(true);
         switch (i.getItemId()) {
             case R.id.nav_menu_home:
                 showFragment(homeFragment);
                 toolbar.setTitle(R.string.app_name);
                 break;
             case R.id.nav_menu_today:
-                dailyFragment.reloadData();
                 showFragment(dailyFragment);
                 toolbar.setTitle(R.string.daily);
                 break;
             case R.id.nav_menu_monthly:
-                monthlyFragment.reloadData();
-                monthlyFragment.adapter.notifyDataSetChanged();
                 showFragment(monthlyFragment);
                 toolbar.setTitle(R.string.monthly);
                 break;
             case R.id.nav_menu_yearly:
-                yearlyFragment.reloadData();
                 showFragment(yearlyFragment);
                 toolbar.setTitle(R.string.yearly);
                 break;
         }
+        currentFragment.checkListEmpty();
+        emptyListImage.requestLayout();
+        setFabClick();
         mDrawerLayout.closeDrawers();
         return true;
     }
+
+    public void setFabClick() {
+        fab.setOnClickListener(v -> currentFragment.startEditActivityForAdd());
+        fab.setOnLongClickListener(v -> {
+            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+            builder.setMessage(getString(R.string.randomlyAddForTest))
+                    .setPositiveButton(R.string.confirm, (dialog, id) -> {
+                        currentFragment.addBillListRandomly();
+                    })
+                    .setNegativeButton(R.string.cancel, (dialog, id) -> {
+                    });
+            builder.create().show();
+            return true;
+        });
+        currentFragment.billRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0) {
+                    fab.hide();
+                } else {
+                    fab.show();
+                }
+            }
+        });
+    }
+
 }

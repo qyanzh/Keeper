@@ -1,6 +1,6 @@
 package com.example.keeper.mytools;
 
-import com.example.keeper.Bill;
+import com.example.keeper.BillItem;
 
 import org.jetbrains.annotations.TestOnly;
 
@@ -9,6 +9,9 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
 
 public class MyBillTools {
 
@@ -20,35 +23,47 @@ public class MyBillTools {
             "消费", "餐饮", "缴费", "转账", "购物", "娱乐", "学习", "出行", "电影", "聚餐", "其它"
     };
 
-    public static class CompareBillByTime implements Comparator<Bill> {
+    public static class CompareBillByTime implements Comparator<BillItem> {
         @Override
-        public int compare(Bill o1, Bill o2) {
+        public int compare(BillItem o1, BillItem o2) {
             return Long.compare(o2.getTimeMills(), o1.getTimeMills());
         }
 
     }
 
     @TestOnly
-    public static List<Bill> getBillListRandomly(int amounts) {
-        List<Bill> billList = new ArrayList<>();
+    public static List<BillItem> getBillListRandomly(int amounts) {
+        List<BillItem> billItemList = new ArrayList<>();
         for (int i = 0; i < amounts; ++i) {
-            Bill bill = new Bill();
-            bill.setPrice(new Random().nextInt() % 200);
-            if (bill.getPrice() < 0) bill.setType(Bill.PAYOUT);
-            else bill.setType(Bill.INCOME);
-            if (bill.isIncome()) {
-                bill.setCategory(incomeCategory[Math.abs(new Random().nextInt() % incomeCategory.length)]);
+            BillItem billItem = new BillItem();
+            billItem.setPrice(new Random().nextInt() % 200);
+            if (billItem.getPrice() < 0) billItem.setType(BillItem.PAYOUT);
+            else billItem.setType(BillItem.INCOME);
+            if (billItem.isIncome()) {
+                billItem.setCategory(incomeCategory[Math.abs(new Random().nextInt() % incomeCategory.length)]);
             } else {
-                bill.setCategory(payoutCategory[Math.abs(new Random().nextInt() % payoutCategory.length)]);
+                billItem.setCategory(payoutCategory[Math.abs(new Random().nextInt() % payoutCategory.length)]);
             }
             Calendar c = Calendar.getInstance();
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
-            c.set(year, month - Math.abs(new Random().nextInt() % 12), day - new Random().nextInt() % 30, new Random().nextInt() % 24 + 1, new Random().nextInt() % 60);
-            bill.setTime(c.getTimeInMillis());
-            billList.add(bill);
+            Random random = new Random();
+            int year = c.get(YEAR) - Math.abs(random.nextInt(2));
+            int month = Math.abs(random.nextInt((year == c.get(YEAR) ? c.get(MONTH) + 1 : 12)));
+            int day = Math.abs(random.nextInt(28));
+            int hour = Math.abs(random.nextInt(24));
+            int minute = Math.abs(random.nextInt(60));
+            c.set(year, month, day, hour, minute);
+            billItem.setTime(c.getTimeInMillis());
+            billItemList.add(billItem);
         }
-        return billList;
+        return billItemList;
+    }
+
+    public static String[] getYearStrings() {
+        Calendar c = Calendar.getInstance();
+        List<String> ret = new ArrayList<>();
+        for (int i = 2018; i <= c.get(YEAR); ++i) {
+            ret.add(String.valueOf(i));
+        }
+        return ret.toArray(new String[ret.size()]);
     }
 }

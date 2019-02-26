@@ -5,7 +5,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
-import com.example.keeper.Bill;
+import com.example.keeper.BillItem;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -14,12 +14,12 @@ public class DatePickerFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Bundle bundle = getArguments();
-        Bill bill;
+        BillItem billItem;
         if(bundle!=null) {
-            bill = (Bill) bundle.getSerializable("bill");
+            billItem = (BillItem) bundle.getSerializable("billItem");
         } else {
-            bill = new Bill();
+            billItem = new BillItem();
         }
-        return new DatePickerDialog(getActivity(), (DatePickerDialog.OnDateSetListener) getActivity(), bill.getYear(), bill.getMonth() - 1, bill.getDay());
+        return new DatePickerDialog(getActivity(), (DatePickerDialog.OnDateSetListener) getActivity(), billItem.getYear(), billItem.getMonth() - 1, billItem.getDay());
     }
 }

@@ -5,7 +5,7 @@ import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
-import com.example.keeper.Bill;
+import com.example.keeper.BillItem;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -14,13 +14,13 @@ public class TimePickerFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Bundle bundle = getArguments();
-        Bill bill;
+        BillItem billItem;
         if(bundle!=null) {
-            bill = (Bill)bundle.getSerializable("bill");
+            billItem = (BillItem) bundle.getSerializable("billItem");
         } else {
-            bill = new Bill();
+            billItem = new BillItem();
         }
-        return new TimePickerDialog(getActivity(), (TimePickerDialog.OnTimeSetListener)getActivity(), bill.getHour(), bill.getMinute(),
+        return new TimePickerDialog(getActivity(), (TimePickerDialog.OnTimeSetListener) getActivity(), billItem.getHour(), billItem.getMinute(),
                 true);
     }
 }

@@ -5,15 +5,9 @@
     android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-        <include
-            android:layout_margin="2dp"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:id="@+id/spinnerBar"
-            layout="@layout/spinnerbar" />
 
         <include
-            android:id="@+id/query_recyclerview"
+            android:id="@+id/bill_recyclerview"
             layout="@layout/bill_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

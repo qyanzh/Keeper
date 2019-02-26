@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <litepal>
-    <dbname value="BillBook"></dbname>
-    <version value="5"></version>
+    <dbname value="Bills"></dbname>
+    <version value="1"></version>
     <list>
-        <mapping class="com.example.keeper.Bill" />
+        <mapping class="com.example.keeper.BillItem" />
     </list>
 </litepal>

@@ -23,7 +23,7 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.example.keeper.Bill;
+import com.example.keeper.BillItem;
 import com.example.keeper.R;
 import com.example.keeper.fragments.DatePickerFragment;
 import com.example.keeper.fragments.TimePickerFragment;
@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class EditBillActivity extends AppCompatActivity
+public class EditActivity extends AppCompatActivity
         implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
     Toolbar toolbar;
     EditText inputMoneyAmount;
@@ -49,7 +49,7 @@ public class EditBillActivity extends AppCompatActivity
     ArrayAdapter<String> spinnerAdapter;
     Button editButtonDate;
     Button editButtonTime;
-    static Bill bill;
+    static BillItem billItem;
     String action;
     int prePosition;
 
@@ -60,11 +60,11 @@ public class EditBillActivity extends AppCompatActivity
         Intent intent = getIntent();
         action = intent.getStringExtra("action");
         if (action.equals("add")) {
-            bill = new Bill();
+            billItem = new BillItem();
         } else if (action.equals("edit")) {
             long id = intent.getLongExtra("id", -1);
             prePosition = intent.getIntExtra("prePosition", -1);
-            bill = (Bill) (LitePal.find(Bill.class, id)).clone();
+            billItem = (BillItem) (LitePal.find(BillItem.class, id)).clone();
         }
         initToolBar();
         initAmountEditor();
@@ -119,7 +119,7 @@ public class EditBillActivity extends AppCompatActivity
                 onBackPressed();
                 break;
             case R.id.add_done:
-                saveBill();
+                saveBillItem();
                 break;
             case R.id.delete:
                 showConfirmDialog(getString(R.string.confirmDeleteQM), "delete");
@@ -133,7 +133,7 @@ public class EditBillActivity extends AppCompatActivity
         builder.setMessage(content)
                 .setPositiveButton(R.string.confirm, (dialog, id) -> {
                     if (action.equals("delete")) {
-                        deleteBill();
+                        deleteBillItem();
                     } else if (action.equals("back")) {
                         super.onBackPressed();
                     }
@@ -143,11 +143,11 @@ public class EditBillActivity extends AppCompatActivity
         builder.create().show();
     }
 
-    public void saveBill() {
+    public void saveBillItem() {
         saveEditTextData();
-        bill.save();
+        billItem.save();
         Intent intent = new Intent();
-        intent.putExtra("id", bill.getId());
+        intent.putExtra("id", billItem.getId());
         if (action.equals("add")) {
             intent.putExtra("action", "add");
         } else if (action.equals("edit")) {
@@ -161,15 +161,15 @@ public class EditBillActivity extends AppCompatActivity
     public void saveEditTextData() {
         if (!inputMoneyAmount.getText().toString().equals("")) {
             float price = Float.parseFloat(inputMoneyAmount.getText().toString());
-            if (bill.isPayout()) price = -price;
-            bill.setPrice(price);
+            if (billItem.isPayout()) price = -price;
+            billItem.setPrice(price);
         }
         String remark = inputRemarks.getText().toString();
-        bill.setRemark(remark);
+        billItem.setRemark(remark);
     }
 
-    public void deleteBill() {
-        LitePal.delete(Bill.class, bill.getId());
+    public void deleteBillItem() {
+        LitePal.delete(BillItem.class, billItem.getId());
         Intent intent = new Intent();
         intent.putExtra("action", "delete");
         intent.putExtra("prePosition", prePosition);
@@ -178,7 +178,7 @@ public class EditBillActivity extends AppCompatActivity
     }
 
     private void initAmountEditor() {
-        float price = bill.getPrice();
+        float price = billItem.getPrice();
         inputMoneyAmount = findViewById(R.id.editText_amount);
         if (price != 0) inputMoneyAmount.setText(String.valueOf(Math.abs(price)));
         if (action.equals("add")) {
@@ -199,18 +199,17 @@ public class EditBillActivity extends AppCompatActivity
         radioGroupType.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId) {
                 case R.id.radioButton_income:
-                    bill.setType(Bill.INCOME);
+                    billItem.setType(BillItem.INCOME);
                     break;
                 case R.id.radioButton_payout:
-                    bill.setType(Bill.PAYOUT);
+                    billItem.setType(BillItem.PAYOUT);
                     break;
             }
             refreshSpinner();
-            bill.setCategory(spinnerAdapter.getItem(0));
-
+            billItem.setCategory(spinnerAdapter.getItem(0));
         });
 
-        if (bill.isIncome()) {
+        if (billItem.isIncome()) {
             radioGroupType.check(R.id.radioButton_income);
         } else {
             radioGroupType.check(R.id.radioButton_payout);
@@ -219,28 +218,28 @@ public class EditBillActivity extends AppCompatActivity
 
     private void initRemarksEditor() {
         inputRemarks = findViewById(R.id.editText_remarks);
-        inputRemarks.setText(bill.getRemark());
+        inputRemarks.setText(billItem.getRemark());
     }
 
     public void initSpinner() {
         spinnerCategory = findViewById(R.id.spinner_category);
-        onSwitchBillType();
+        onSwitchBillItemType();
         spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
         spinnerCategory.setAdapter(spinnerAdapter);
         spinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                bill.setCategory(categories.get(position));
+                billItem.setCategory(categories.get(position));
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                Toast.makeText(EditBillActivity.this, "onNothingSelected", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditActivity.this, "onNothingSelected", Toast.LENGTH_SHORT).show();
             }
         });
         for (int i = 0; i < spinnerAdapter.getCount(); ++i) {
-            if (bill.getCategory().equals(spinnerAdapter.getItem(i))) {
+            if (billItem.getCategory().equals(spinnerAdapter.getItem(i))) {
                 spinnerCategory.setSelection(i);
                 break;
             }
@@ -248,15 +247,15 @@ public class EditBillActivity extends AppCompatActivity
     }
 
     public void refreshSpinner() {
-        onSwitchBillType();
+        onSwitchBillItemType();
         spinnerAdapter.clear();
         spinnerAdapter.addAll(categories);
         spinnerAdapter.notifyDataSetChanged();
         spinnerCategory.setSelection(0);
     }
 
-    public void onSwitchBillType() {
-        if (bill.isPayout()) {
+    public void onSwitchBillItemType() {
+        if (billItem.isPayout()) {
             categories = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.payoutCategory)));
         } else {
             categories = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.incomeCategory)));
@@ -268,36 +267,36 @@ public class EditBillActivity extends AppCompatActivity
         editButtonTime = findViewById(R.id.editButton_time);
         editButtonDate.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
-            bundle.putSerializable("bill", bill);
+            bundle.putSerializable("billItem", billItem);
             DatePickerFragment datePickerFragment = new DatePickerFragment();
             datePickerFragment.setArguments(bundle);
             datePickerFragment.show(getSupportFragmentManager(), "datePicker");
         });
         editButtonTime.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
-            bundle.putSerializable("bill", bill);
+            bundle.putSerializable("billItem", billItem);
             TimePickerFragment timePickerFragment = new TimePickerFragment();
             timePickerFragment.setArguments(bundle);
             timePickerFragment.show(getSupportFragmentManager(), "timePicker");
         });
-        editButtonDate.setText(MyDateFormat.format(bill.getTimeMills(), false));
-        editButtonTime.setText(MyDateFormat.timeFormatter.format(bill.getTimeMills()));
+        editButtonDate.setText(MyDateFormat.format(billItem.getTimeMills(), false));
+        editButtonTime.setText(MyDateFormat.timeFormatter.format(billItem.getTimeMills()));
     }
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int day) {
         Calendar c = Calendar.getInstance();
-        c.set(year, month, day, bill.getHour(), bill.getMinute());
-        bill.setTime(c.getTimeInMillis());
-        editButtonDate.setText(MyDateFormat.format(bill.getTimeMills(), false));
+        c.set(year, month, day, billItem.getHour(), billItem.getMinute());
+        billItem.setTime(c.getTimeInMillis());
+        editButtonDate.setText(MyDateFormat.format(billItem.getTimeMills(), false));
     }
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         Calendar c = Calendar.getInstance();
-        c.set(bill.getYear(), bill.getMonth() - 1, bill.getDay(), hourOfDay, minute);
-        bill.setTime(c.getTimeInMillis());
-        editButtonTime.setText(MyDateFormat.timeFormatter.format(bill.getTimeMills()));
+        c.set(billItem.getYear(), billItem.getMonth() - 1, billItem.getDay(), hourOfDay, minute);
+        billItem.setTime(c.getTimeInMillis());
+        editButtonTime.setText(MyDateFormat.timeFormatter.format(billItem.getTimeMills()));
     }
 
 }

@@ -4,6 +4,11 @@ package com.example.keeper.mytools;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import static java.util.Calendar.DAY_OF_MONTH;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
+
+
 public class MyDateFormat {
     //TODO:getDateTimeInstance();
     public static SimpleDateFormat sameYearFormatter = new SimpleDateFormat("MM月dd日");
@@ -12,13 +17,13 @@ public class MyDateFormat {
 
     public static String format(long timeMills, boolean changeRecent) {
         Calendar c = Calendar.getInstance();
-        int curYear = c.get(Calendar.YEAR);
-        int curMonth = c.get(Calendar.MONTH);
-        int curDay = c.get(Calendar.DAY_OF_MONTH);
+        int curYear = c.get(YEAR);
+        int curMonth = c.get(MONTH);
+        int curDay = c.get(DAY_OF_MONTH);
         c.setTimeInMillis(timeMills);
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
+        int year = c.get(YEAR);
+        int month = c.get(MONTH);
+        int day = c.get(DAY_OF_MONTH);
         String ret;
         if (year == curYear) {
             if (month == curMonth && changeRecent) {

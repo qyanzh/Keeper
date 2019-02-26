@@ -1,23 +1,28 @@
-package com.example.keeper;
 
+package com.example.keeper;
 
 import org.litepal.crud.LitePalSupport;
 
 import java.io.Serializable;
 import java.util.Calendar;
 
-public class Bill extends LitePalSupport implements Cloneable, Serializable {
+import static java.util.Calendar.DAY_OF_MONTH;
+import static java.util.Calendar.HOUR_OF_DAY;
+import static java.util.Calendar.MINUTE;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
 
-    public static final boolean INCOME = true;
+public class BillItem extends LitePalSupport implements Cloneable, Serializable {
 
-    public static final boolean PAYOUT = false;
+    public static final int INCOME = 0;
 
+    public static final int PAYOUT = 1;
 
     private long id;
 
     private float price;
 
-    private boolean type;
+    private int type;
 
     private String remark;
 
@@ -32,7 +37,7 @@ public class Bill extends LitePalSupport implements Cloneable, Serializable {
     private long timeMills;
 
 
-    public Bill() {
+    public BillItem() {
         this.price = 0;
         this.type = PAYOUT;
         this.remark = "";
@@ -55,11 +60,11 @@ public class Bill extends LitePalSupport implements Cloneable, Serializable {
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(timeMills);
         this.timeMills = timeMills;
-        this.year = c.get(Calendar.YEAR);
-        this.month = c.get(Calendar.MONTH) + 1;
-        this.day = c.get(Calendar.DAY_OF_MONTH);
-        this.hour = c.get(Calendar.HOUR_OF_DAY);
-        this.minute = c.get(Calendar.MINUTE);
+        this.year = c.get(YEAR);
+        this.month = c.get(MONTH) + 1;
+        this.day = c.get(DAY_OF_MONTH);
+        this.hour = c.get(HOUR_OF_DAY);
+        this.minute = c.get(MINUTE);
     }
 
     public long getId() {
@@ -78,11 +83,11 @@ public class Bill extends LitePalSupport implements Cloneable, Serializable {
         this.price = price;
     }
 
-    public boolean isType() {
+    public int getType() {
         return type;
     }
 
-    public void setType(boolean type) {
+    public void setType(int type) {
         this.type = type;
     }
 

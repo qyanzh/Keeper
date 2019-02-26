@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.keeper.activities.EditBillActivity;
+import com.example.keeper.activities.EditActivity;
 import com.example.keeper.fragments.HomeFragment;
 import com.example.keeper.mytools.MyDateFormat;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
@@ -21,7 +21,7 @@ import java.util.List;
 public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> implements StickyRecyclerHeadersAdapter {
     private static final DecimalFormat df = new DecimalFormat("+0.00;-0.00");
     private static int ORANGE = Color.parseColor("#E8541E");
-    private List<Bill> mBillList;
+    private List<BillItem> mBillItemList;
     private Fragment mFragment;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -41,9 +41,9 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> im
         }
     }
 
-    public BillAdapter(Fragment fragment, List<Bill> billList) {
+    public BillAdapter(Fragment fragment, List<BillItem> billItemList) {
         mFragment = fragment;
-        mBillList = billList;
+        mBillItemList = billItemList;
     }
 
     @NonNull
@@ -52,43 +52,41 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> im
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.bill_item, viewGroup, false);
         final ViewHolder holder = new ViewHolder(view);
-        if (mFragment instanceof HomeFragment) {
-            holder.billView.setOnClickListener(v -> {
-                int position = holder.getAdapterPosition();
-                Bill bill = mBillList.get(position);
-                editBill(bill.getId(), position);
-            });
-        }
+        holder.billView.setOnClickListener(v -> {
+            int position = holder.getAdapterPosition();
+            BillItem billItem = mBillItemList.get(position);
+            editBill(billItem.getId(), position);
+        });
         return holder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull BillAdapter.ViewHolder viewHolder, int i) {
-        Bill bill = mBillList.get(i);
-        viewHolder.billCategory.setText(bill.getCategory());
-        float price = bill.getPrice();
+        BillItem billItem = mBillItemList.get(i);
+        viewHolder.billCategory.setText(billItem.getCategory());
+        float price = billItem.getPrice();
         if (price == 0) {
             viewHolder.billPrice.setText(R.string.zero);
         } else {
             viewHolder.billPrice.setText(df.format(price));
         }
-        if (bill.isIncome()) {
+        if (billItem.isIncome()) {
             viewHolder.billPrice.setTextColor(ORANGE);
         } else {
             viewHolder.billPrice.setTextColor(Color.BLACK);
         }
-        if (bill.getRemark().equals("")) {
-            viewHolder.billRemark.setText(bill.isIncome() ? R.string.income : R.string.payout);
+        if (billItem.getRemark().equals("")) {
+            viewHolder.billRemark.setText(billItem.isIncome() ? R.string.income : R.string.payout);
         } else {
-            viewHolder.billRemark.setText(bill.getRemark());
+            viewHolder.billRemark.setText(billItem.getRemark());
         }
-        viewHolder.billTime.setText(MyDateFormat.timeFormatter.format(bill.getTimeMills()));
+        viewHolder.billTime.setText(MyDateFormat.timeFormatter.format(billItem.getTimeMills()));
     }
 
     @Override
     public long getHeaderId(int position) {
-        Bill bill = mBillList.get(position);
-        return bill.getYear() * 10000 + bill.getMonth() * 100 + bill.getDay();
+        BillItem billItem = mBillItemList.get(position);
+        return billItem.getYear() * 10000 + billItem.getMonth() * 100 + billItem.getDay();
     }
 
     @Override
@@ -100,18 +98,18 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> im
     @Override
     public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder, int position) {
         TextView textView = holder.itemView.findViewById(R.id.header_title);
-        Bill bill = mBillList.get(position);
-        String time = MyDateFormat.format(bill.getTimeMills(), true);
+        BillItem billItem = mBillItemList.get(position);
+        String time = MyDateFormat.format(billItem.getTimeMills(), true);
         textView.setText(time);
     }
 
     @Override
     public int getItemCount() {
-        return mBillList.size();
+        return mBillItemList.size();
     }
 
     private void editBill(long id, int position) {
-        Intent intent = new Intent(mFragment.getContext(), EditBillActivity.class);
+        Intent intent = new Intent(mFragment.getContext(), EditActivity.class);
         intent.putExtra("action", "edit");
         intent.putExtra("id", id);
         intent.putExtra("prePosition", position);

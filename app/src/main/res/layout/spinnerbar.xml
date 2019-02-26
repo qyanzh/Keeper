@@ -3,9 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:padding="4dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <Spinner
+
         android:textAlignment="center"
         android:visibility="gone"
         android:gravity="center_horizontal"
