@@ -244,6 +244,7 @@ public class BillListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        checkListEmpty();
         emptyListImage.requestLayout();
     }
 }
