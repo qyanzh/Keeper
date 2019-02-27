@@ -11,9 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -21,7 +19,6 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.example.keeper.BillItem;
 import com.example.keeper.Pickers.DatePickerFragment;
@@ -166,6 +163,8 @@ public class EditActivity extends AppCompatActivity
         }
         String remark = inputRemarks.getText().toString();
         billItem.setRemark(remark);
+        String category = spinnerCategory.getSelectedItem().toString();
+        billItem.setCategory(category);
     }
 
     public void deleteBillItem() {
@@ -196,6 +195,12 @@ public class EditActivity extends AppCompatActivity
 
     public void initRadioButtons() {
         radioGroupType = findViewById(R.id.radio_group_type);
+        if (billItem.isIncome()) {
+            radioGroupType.check(R.id.radioButton_income);
+        } else {
+            radioGroupType.check(R.id.radioButton_payout);
+        }
+        refreshSpinner();
         radioGroupType.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId) {
                 case R.id.radioButton_income:
@@ -206,14 +211,7 @@ public class EditActivity extends AppCompatActivity
                     break;
             }
             refreshSpinner();
-            billItem.setCategory(spinnerAdapter.getItem(0));
         });
-
-        if (billItem.isIncome()) {
-            radioGroupType.check(R.id.radioButton_income);
-        } else {
-            radioGroupType.check(R.id.radioButton_payout);
-        }
     }
 
     private void initRemarksEditor() {
@@ -223,38 +221,33 @@ public class EditActivity extends AppCompatActivity
 
     public void initSpinner() {
         spinnerCategory = findViewById(R.id.spinner_category);
-        onSwitchBillItemType();
+        getCategoriesOfType();
         spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(spinnerAdapter);
-        spinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                billItem.setCategory(categories.get(position));
-            }
+        autoSelectCategory();
+    }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Toast.makeText(EditActivity.this, "onNothingSelected", Toast.LENGTH_SHORT).show();
-            }
-        });
-        for (int i = 0; i < spinnerAdapter.getCount(); ++i) {
+    public void autoSelectCategory() {
+        int i = 0, count = spinnerAdapter.getCount();
+        for (i = 0; i < count; ++i) {
             if (billItem.getCategory().equals(spinnerAdapter.getItem(i))) {
                 spinnerCategory.setSelection(i);
                 break;
             }
         }
+        if (i == count) spinnerCategory.setSelection(0);
     }
 
     public void refreshSpinner() {
-        onSwitchBillItemType();
+        getCategoriesOfType();
         spinnerAdapter.clear();
         spinnerAdapter.addAll(categories);
         spinnerAdapter.notifyDataSetChanged();
-        spinnerCategory.setSelection(0);
+        autoSelectCategory();
     }
 
-    public void onSwitchBillItemType() {
+    public void getCategoriesOfType() {
         if (billItem.isPayout()) {
             categories = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.payoutCategory)));
         } else {

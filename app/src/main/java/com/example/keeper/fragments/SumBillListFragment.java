@@ -48,13 +48,10 @@ public class SumBillListFragment extends BillListFragment {
 
         switch (queryArguments.length) {
             case 3:
-
                 setSpinner(spinnerDay, dayAdapter, days, 2);
             case 2:
-
                 setSpinner(spinnerMonth, monthAdapter, months, 1);
             case 1:
-
                 setSpinner(spinnerYear, yearAdapter, years, 0);
             default:
                 reloadData();
@@ -89,6 +86,7 @@ public class SumBillListFragment extends BillListFragment {
                 queryArguments[pos] = (String) parent.getItemAtPosition(position);
                 reloadData();
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }

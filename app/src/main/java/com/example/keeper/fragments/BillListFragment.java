@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.keeper.BillAdapter;
@@ -45,9 +44,6 @@ public class BillListFragment extends Fragment {
     public static final int REQUEST_EDIT_BILL = 1;
     String[] queryConditions;
     String[] queryArguments;
-    //
-    ImageView imageView;
-    //
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,13 +66,11 @@ public class BillListFragment extends Fragment {
         if (view == null) {
             view = inflater.inflate(R.layout.fragment_query, container, false);
         }
-        //
-        imageView = view.findViewById(R.id.imageView);
-        //
         emptyListImage = view.findViewById(R.id.empty_list_image);
         billRecyclerView = view.findViewById(R.id.bill_recyclerview);
         billRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         billRecyclerView.setAdapter(adapter);
+        billRecyclerView.setHasFixedSize(true);
         final StickyRecyclerHeadersDecoration headersDecoration = new StickyRecyclerHeadersDecoration(adapter);
         billRecyclerView.addItemDecoration(headersDecoration);
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -179,11 +173,12 @@ public class BillListFragment extends Fragment {
 
     @TestOnly
     public boolean addBillListRandomly() {
-        MyBillTools.getBillListRandomly(10).forEach((bill -> {
+        MyBillTools.getBillListRandomly(10, getResources()).forEach((bill -> {
             bill.save();
             onBillItemAdded(bill.getId());
         }));
         billRecyclerView.scrollToPosition(0);
+        checkListEmpty();
         return true;
     }
 
@@ -241,10 +236,14 @@ public class BillListFragment extends Fragment {
             emptyListImage.setVisibility(View.VISIBLE);
             mActivity.fab.show();
         } else {
-            emptyListImage.setVisibility(View.INVISIBLE);
+            emptyListImage.setVisibility(View.GONE);
         }
-        emptyListImage.requestLayout();
         Log.d(TAG, "checkListEmpty: " + (emptyListImage.getVisibility() == View.VISIBLE ? "Visible" : "invisible"));
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        emptyListImage.requestLayout();
+    }
 }

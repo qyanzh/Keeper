@@ -1,6 +1,9 @@
 package com.example.keeper.mytools;
 
+import android.content.res.Resources;
+
 import com.example.keeper.BillItem;
+import com.example.keeper.R;
 
 import org.jetbrains.annotations.TestOnly;
 
@@ -15,13 +18,13 @@ import static java.util.Calendar.YEAR;
 
 public class MyBillTools {
 
-    private static String[] incomeCategory = {
-            "转账", "生活费", "红包", "奖学金", "工资", "其它"
-    };
-
-    private static String[] payoutCategory = {
-            "消费", "餐饮", "缴费", "转账", "购物", "娱乐", "学习", "出行", "电影", "聚餐", "其它"
-    };
+//    private static String[] incomeCategory = {
+//            "转账", "生活费", "红包", "奖学金", "工资", "其它"
+//    };
+//
+//    private static String[] payoutCategory = {
+//            "消费", "餐饮", "缴费", "转账", "购物", "娱乐", "学习", "出行", "电影", "聚餐", "其它"
+//    };
 
     public static class CompareBillByTime implements Comparator<BillItem> {
         @Override
@@ -32,7 +35,9 @@ public class MyBillTools {
     }
 
     @TestOnly
-    public static List<BillItem> getBillListRandomly(int amounts) {
+    public static List<BillItem> getBillListRandomly(int amounts, Resources r) {
+        String[] incomeCategory = r.getStringArray(R.array.incomeCategory);
+        String[] payoutCategory = r.getStringArray(R.array.payoutCategory);
         List<BillItem> billItemList = new ArrayList<>();
         for (int i = 0; i < amounts; ++i) {
             BillItem billItem = new BillItem();

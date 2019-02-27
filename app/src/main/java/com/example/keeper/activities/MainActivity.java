@@ -148,12 +148,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         setFabClick();
-        mFragments.forEach(BillListFragment::checkListEmpty);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     private void initNavigation() {
