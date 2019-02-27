@@ -244,7 +244,6 @@ public class MainActivity extends AppCompatActivity {
                 toolbar.setTitle(R.string.yearly);
                 break;
         }
-
         setFabClick();
         mDrawerLayout.closeDrawers();
         return true;

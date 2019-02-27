@@ -121,7 +121,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:ems="10"
-        android:hint="@string/add_remarks"
+        android:hint="@string/addRemarks"
         android:inputType="textShortMessage"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent"
@@ -142,7 +142,7 @@
     <Spinner
         android:id="@+id/spinner_category"
         android:layout_width="0dp"
-        android:layout_height="23dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:spinnerMode="dropdown"
         app:layout_constraintBottom_toBottomOf="@+id/editText_remarks"

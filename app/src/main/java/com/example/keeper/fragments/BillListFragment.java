@@ -188,7 +188,6 @@ public class BillListFragment extends Fragment {
         Log.d(TAG, " reloadData");
         billItemList.addAll(LitePal.where(getMergedQueryString()).order("timeMills desc").find(BillItem.class));
         adapter.notifyDataSetChanged();
-        billRecyclerView.invalidateItemDecorations();
         checkListEmpty();
     }
 
@@ -245,6 +244,8 @@ public class BillListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         checkListEmpty();
+        billRecyclerView.invalidateItemDecorations();
         emptyListImage.requestLayout();
     }
+
 }
