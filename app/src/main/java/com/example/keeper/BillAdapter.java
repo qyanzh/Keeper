@@ -19,7 +19,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> implements StickyRecyclerHeadersAdapter {
-    private static final DecimalFormat df = new DecimalFormat("+###,###,###.00;-###,###,###.00");
+    private static final DecimalFormat df = new DecimalFormat("+###,###,##0.00;-###,###,##0.00");
     private static int ORANGE = Color.parseColor("#E8541E");
     private List<BillItem> mBillItemList;
     private Fragment mFragment;

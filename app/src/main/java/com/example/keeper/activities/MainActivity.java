@@ -1,5 +1,6 @@
 package com.example.keeper.activities;
 
+import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -72,6 +73,31 @@ public class MainActivity extends AppCompatActivity {
         initView();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        setFabClick();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                break;
+            case R.id.delete_all:
+                deleteDatabase();
+                break;
+        }
+        return true;
+    }
+
 
     public void welcome() {
         SharedPreferences sp = getSharedPreferences("isFirstOpen", MODE_PRIVATE);
@@ -93,12 +119,58 @@ public class MainActivity extends AppCompatActivity {
         initToolBar();
         fab = findViewById(R.id.fab);
         mDrawerLayout = findViewById(R.id.drawer_layout);
-        initFragment();
         initNavigation();
+        initFragment();
+    }
+
+    private void initToolBar() {
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
+        }
+        toolbar.setOnClickListener(new MyDoubleClickListener(300) {
+            @Override
+            public void onDoubleClick() {
+                currentFragment.billRecyclerView.scrollToPosition(0);
+                fab.show();
+            }
+        });
+    }
+
+    private void initNavigation() {
+        mNavigation = findViewById(R.id.nav_view);
+        mNavigation.setCheckedItem(R.id.nav_menu_home);
+        mNavigation.setNavigationItemSelectedListener(this::onNavigationItemSelected);
+    }
+
+    public boolean onNavigationItemSelected(MenuItem i) {
+        switch (i.getItemId()) {
+            case R.id.nav_menu_home:
+                showFragment(homeFragment);
+                toolbar.setTitle(R.string.app_name);
+                break;
+            case R.id.nav_menu_today:
+                showFragment(dailyFragment);
+                toolbar.setTitle(R.string.daily);
+                break;
+            case R.id.nav_menu_monthly:
+                showFragment(monthlyFragment);
+                toolbar.setTitle(R.string.monthly);
+                break;
+            case R.id.nav_menu_yearly:
+                showFragment(yearlyFragment);
+                toolbar.setTitle(R.string.yearly);
+                break;
+        }
+        setFabClick();
+        mDrawerLayout.closeDrawers();
+        return true;
     }
 
     private void initFragment() {
-
         if (yearlyFragment == null) {
             yearlyFragment = new SumBillListFragment();
             Calendar c = Calendar.getInstance();
@@ -144,35 +216,6 @@ public class MainActivity extends AppCompatActivity {
         currentFragment = homeFragment;
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        setFabClick();
-    }
-
-    private void initNavigation() {
-        mNavigation = findViewById(R.id.nav_view);
-        mNavigation.setCheckedItem(R.id.nav_menu_home);
-        mNavigation.setNavigationItemSelectedListener(this::onNavigationItemSelected);
-    }
-
-    private void initToolBar() {
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
-        }
-        toolbar.setOnClickListener(new MyDoubleClickListener(300) {
-            @Override
-            public void onDoubleClick() {
-                currentFragment.billRecyclerView.scrollToPosition(0);
-                fab.show();
-            }
-        });
-    }
-
 
     private void showFragment(BillListFragment selectedFragment) {
         if (currentFragment != selectedFragment) {
@@ -185,78 +228,12 @@ public class MainActivity extends AppCompatActivity {
         currentFragment = selectedFragment;
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                mDrawerLayout.openDrawer(GravityCompat.START);
-                break;
-            case R.id.delete_all:
-                deleteDatabase();
-                break;
-        }
-        return true;
-    }
-
-    @TestOnly
-    public void deleteDatabase() {
-        LitePal.deleteAll(BillItem.class);
-        mFragments.forEach(mFragment -> {
-            mFragment.billItemList.clear();
-            mFragment.adapter.notifyDataSetChanged();
-            mFragment.checkListEmpty();
-        });
-        fab.show();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            mDrawerLayout.closeDrawers();
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    public boolean onNavigationItemSelected(MenuItem i) {
-        switch (i.getItemId()) {
-            case R.id.nav_menu_home:
-                showFragment(homeFragment);
-                toolbar.setTitle(R.string.app_name);
-                break;
-            case R.id.nav_menu_today:
-                showFragment(dailyFragment);
-                toolbar.setTitle(R.string.daily);
-                break;
-            case R.id.nav_menu_monthly:
-                showFragment(monthlyFragment);
-                toolbar.setTitle(R.string.monthly);
-                break;
-            case R.id.nav_menu_yearly:
-                showFragment(yearlyFragment);
-                toolbar.setTitle(R.string.yearly);
-                break;
-        }
-        setFabClick();
-        mDrawerLayout.closeDrawers();
-        return true;
-    }
-
     public void setFabClick() {
         fab.setOnClickListener(v -> currentFragment.startEditActivityForAdd());
         fab.setOnLongClickListener(v -> {
             android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
             builder.setMessage(getString(R.string.randomlyAddForTest))
-                    .setPositiveButton(R.string.confirm, (dialog, id) -> {
-                        currentFragment.addBillListRandomly();
-                    })
+                    .setPositiveButton(R.string.confirm, (dialog, id) -> currentFragment.addBillListRandomly())
                     .setNegativeButton(R.string.cancel, (dialog, id) -> {
                     });
             builder.create().show();
@@ -273,6 +250,35 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayout.closeDrawers();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @TestOnly
+    public void deleteDatabase() {
+        android.app.AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(getString(R.string.confirmDeleteAll))
+                .setPositiveButton(R.string.confirm, (dialog, id) -> {
+                    LitePal.deleteAll(BillItem.class);
+                    mFragments.forEach(mFragment -> {
+                        mFragment.billItemList.clear();
+                        mFragment.adapter.notifyDataSetChanged();
+                        mFragment.refreshAmountOfMoney();
+                        mFragment.checkListEmpty();
+                    });
+                    fab.show();
+                })
+                .setNegativeButton(R.string.cancel, (dialog, id) -> {
+                });
+        builder.create().show();
     }
 
 }

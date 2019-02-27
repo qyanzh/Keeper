@@ -37,8 +37,9 @@
     <string name="deleted">已删除</string>
     <string name="randomlyAddForTest">随机添加项目(供测试)</string>
     <string name="total">合计</string>
-    <string name="payoutWithSignal">支出: ¥</string>
-    <string name="incomeWithSignal">收入: ¥</string>
-    <string name="totalWithSignal">合计: ¥</string>
+    <string name="payoutWithSignal">支出:</string>
+    <string name="incomeWithSignal">收入:</string>
+    <string name="totalWithSignal">合计:</string>
+    <string name="confirmDeleteAll">确认清空数据库?(供测试)</string>
 
 </resources>

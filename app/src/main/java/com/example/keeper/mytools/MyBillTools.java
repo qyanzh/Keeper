@@ -18,14 +18,6 @@ import static java.util.Calendar.YEAR;
 
 public class MyBillTools {
 
-//    private static String[] incomeCategory = {
-//            "转账", "生活费", "红包", "奖学金", "工资", "其它"
-//    };
-//
-//    private static String[] payoutCategory = {
-//            "消费", "餐饮", "缴费", "转账", "购物", "娱乐", "学习", "出行", "电影", "聚餐", "其它"
-//    };
-
     public static class CompareBillByTime implements Comparator<BillItem> {
         @Override
         public int compare(BillItem o1, BillItem o2) {
@@ -69,6 +61,6 @@ public class MyBillTools {
         for (int i = 2018; i <= c.get(YEAR); ++i) {
             ret.add(String.valueOf(i));
         }
-        return ret.toArray(new String[ret.size()]);
+        return ret.toArray(new String[0]);
     }
 }

@@ -69,21 +69,6 @@ public class EditActivity extends AppCompatActivity
         initRadioButtons();
         initRemarksEditor();
         initTimeBox();
-
-    }
-
-    public void initToolBar() {
-        toolbar = findViewById(R.id.toolbar_edit);
-        if (action.equals("edit")) {
-            toolbar.setTitle(R.string.edit);
-        } else {
-            toolbar.setTitle(R.string.add);
-        }
-        setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
     }
 
     @Override
@@ -101,36 +86,27 @@ public class EditActivity extends AppCompatActivity
     }
 
     @Override
-    public void onBackPressed() {
-        if (action.equals("add")) {
-            showConfirmDialog(getString(R.string.giveUpOperationQM), "back");
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
                 break;
             case R.id.add_done:
-                saveBillItem();
+                saveBillItemAndFinish();
                 break;
             case R.id.delete:
-                showConfirmDialog(getString(R.string.confirmDeleteQM), "delete");
+                showItemSelectedConfirmDialog(getString(R.string.confirmDeleteQM), "delete");
                 break;
         }
         return true;
     }
 
-    public void showConfirmDialog(String content, String action) {
+    public void showItemSelectedConfirmDialog(String content, String action) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(content)
                 .setPositiveButton(R.string.confirm, (dialog, id) -> {
                     if (action.equals("delete")) {
-                        deleteBillItem();
+                        deleteBillItemAndFinish();
                     } else if (action.equals("back")) {
                         super.onBackPressed();
                     }
@@ -140,40 +116,27 @@ public class EditActivity extends AppCompatActivity
         builder.create().show();
     }
 
-    public void saveBillItem() {
-        saveEditTextData();
-        billItem.save();
-        Intent intent = new Intent();
-        intent.putExtra("id", billItem.getId());
+    @Override
+    public void onBackPressed() {
         if (action.equals("add")) {
-            intent.putExtra("action", "add");
-        } else if (action.equals("edit")) {
-            intent.putExtra("action", "edit");
-            intent.putExtra("prePosition", prePosition);
+            showItemSelectedConfirmDialog(getString(R.string.giveUpOperationQM), "back");
+        } else {
+            super.onBackPressed();
         }
-        setResult(RESULT_OK, intent);
-        finish();
     }
 
-    public void saveEditTextData() {
-        if (!inputMoneyAmount.getText().toString().equals("")) {
-            float price = Float.parseFloat(inputMoneyAmount.getText().toString());
-            if (billItem.isPayout()) price = -price;
-            billItem.setPrice(price);
+    public void initToolBar() {
+        toolbar = findViewById(R.id.toolbar_edit);
+        if (action.equals("edit")) {
+            toolbar.setTitle(R.string.edit);
+        } else {
+            toolbar.setTitle(R.string.add);
         }
-        String remark = inputRemarks.getText().toString();
-        billItem.setRemark(remark);
-        String category = spinnerCategory.getSelectedItem().toString();
-        billItem.setCategory(category);
-    }
-
-    public void deleteBillItem() {
-        LitePal.delete(BillItem.class, billItem.getId());
-        Intent intent = new Intent();
-        intent.putExtra("action", "delete");
-        intent.putExtra("prePosition", prePosition);
-        setResult(RESULT_OK, intent);
-        finish();
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     private void initAmountEditor() {
@@ -191,6 +154,42 @@ public class EditActivity extends AppCompatActivity
                 }
             }, 500);
         }
+    }
+
+    public void initSpinner() {
+        spinnerCategory = findViewById(R.id.spinner_category);
+        getCategoriesOfType();
+        spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategory.setAdapter(spinnerAdapter);
+        autoSelectCategory();
+    }
+
+    public void refreshSpinner() {
+        getCategoriesOfType();
+        spinnerAdapter.clear();
+        spinnerAdapter.addAll(categories);
+        spinnerAdapter.notifyDataSetChanged();
+        autoSelectCategory();
+    }
+
+    public void getCategoriesOfType() {
+        if (billItem.isPayout()) {
+            categories = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.payoutCategory)));
+        } else {
+            categories = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.incomeCategory)));
+        }
+    }
+
+    public void autoSelectCategory() {
+        int i = 0, count = spinnerAdapter.getCount();
+        for (; i < count; ++i) {
+            if (billItem.getCategory().equals(spinnerAdapter.getItem(i))) {
+                spinnerCategory.setSelection(i);
+                break;
+            }
+        }
+        if (i == count) spinnerCategory.setSelection(0);
     }
 
     public void initRadioButtons() {
@@ -217,42 +216,6 @@ public class EditActivity extends AppCompatActivity
     private void initRemarksEditor() {
         inputRemarks = findViewById(R.id.editText_remarks);
         inputRemarks.setText(billItem.getRemark());
-    }
-
-    public void initSpinner() {
-        spinnerCategory = findViewById(R.id.spinner_category);
-        getCategoriesOfType();
-        spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerCategory.setAdapter(spinnerAdapter);
-        autoSelectCategory();
-    }
-
-    public void autoSelectCategory() {
-        int i = 0, count = spinnerAdapter.getCount();
-        for (i = 0; i < count; ++i) {
-            if (billItem.getCategory().equals(spinnerAdapter.getItem(i))) {
-                spinnerCategory.setSelection(i);
-                break;
-            }
-        }
-        if (i == count) spinnerCategory.setSelection(0);
-    }
-
-    public void refreshSpinner() {
-        getCategoriesOfType();
-        spinnerAdapter.clear();
-        spinnerAdapter.addAll(categories);
-        spinnerAdapter.notifyDataSetChanged();
-        autoSelectCategory();
-    }
-
-    public void getCategoriesOfType() {
-        if (billItem.isPayout()) {
-            categories = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.payoutCategory)));
-        } else {
-            categories = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.incomeCategory)));
-        }
     }
 
     private void initTimeBox() {
@@ -290,6 +253,42 @@ public class EditActivity extends AppCompatActivity
         c.set(billItem.getYear(), billItem.getMonth() - 1, billItem.getDay(), hourOfDay, minute);
         billItem.setTime(c.getTimeInMillis());
         editButtonTime.setText(MyDateFormat.timeFormatter.format(billItem.getTimeMills()));
+    }
+
+    public void saveData() {
+        if (!inputMoneyAmount.getText().toString().equals("")) {
+            float price = Float.parseFloat(inputMoneyAmount.getText().toString());
+            if (billItem.isPayout()) price = -price;
+            billItem.setPrice(price);
+        }
+        String remark = inputRemarks.getText().toString();
+        billItem.setRemark(remark);
+        String category = spinnerCategory.getSelectedItem().toString();
+        billItem.setCategory(category);
+    }
+
+    public void saveBillItemAndFinish() {
+        saveData();
+        billItem.save();
+        Intent intent = new Intent();
+        intent.putExtra("id", billItem.getId());
+        if (action.equals("add")) {
+            intent.putExtra("action", "add");
+        } else if (action.equals("edit")) {
+            intent.putExtra("action", "edit");
+            intent.putExtra("prePosition", prePosition);
+        }
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    public void deleteBillItemAndFinish() {
+        LitePal.delete(BillItem.class, billItem.getId());
+        Intent intent = new Intent();
+        intent.putExtra("action", "delete");
+        intent.putExtra("prePosition", prePosition);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
 }

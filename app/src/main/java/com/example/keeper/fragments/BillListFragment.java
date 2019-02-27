@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.keeper.BillAdapter;
@@ -25,6 +26,7 @@ import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 import org.jetbrains.annotations.TestOnly;
 import org.litepal.LitePal;
 
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,6 +34,7 @@ import static android.app.Activity.RESULT_OK;
 
 public class BillListFragment extends Fragment {
 
+    private static final DecimalFormat df = new DecimalFormat("¥###,###,##0.00");
     public View view;
     public String TAG;
     public List<BillItem> billItemList;
@@ -39,6 +42,9 @@ public class BillListFragment extends Fragment {
     public RecyclerView billRecyclerView;
     public MainActivity mActivity;
     Group emptyListImage;
+    TextView textTotalIncome;
+    TextView textTotalPayout;
+    TextView textTotalAmount;
 
     public static final int REQUEST_ADD_BILL = 0;
     public static final int REQUEST_EDIT_BILL = 1;
@@ -66,6 +72,9 @@ public class BillListFragment extends Fragment {
         if (view == null) {
             view = inflater.inflate(R.layout.fragment_query, container, false);
         }
+        textTotalIncome = view.findViewById(R.id.text_income_amount);
+        textTotalPayout = view.findViewById(R.id.text_payout_amount);
+        textTotalAmount = view.findViewById(R.id.text_total_amount);
         emptyListImage = view.findViewById(R.id.empty_list_image);
         billRecyclerView = view.findViewById(R.id.bill_recyclerview);
         billRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -80,6 +89,15 @@ public class BillListFragment extends Fragment {
             }
         });
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkListEmpty();
+        refreshAmountOfMoney();
+        billRecyclerView.invalidateItemDecorations();
+        emptyListImage.requestLayout();
     }
 
     String getMergedQueryString() {
@@ -98,7 +116,6 @@ public class BillListFragment extends Fragment {
         Log.d(TAG, "getMergedQueryString : " + sb.toString());
         return sb.toString();
     }
-
 
     private boolean isMatchCondition(long id) {
         if (queryArguments == null) {
@@ -128,6 +145,31 @@ public class BillListFragment extends Fragment {
             }
         }
         return i == length;
+    }
+
+    public void startEditActivityForAdd() {
+        Intent intent = new Intent(getContext(), EditActivity.class);
+        intent.putExtra("action", "add");
+        startActivityForResult(intent, REQUEST_ADD_BILL);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_ADD_BILL:
+                if (resultCode == RESULT_OK) {
+                    refreshRecyclerViewAfterEdit(data);
+                }
+                break;
+            case REQUEST_EDIT_BILL:
+                if (resultCode == RESULT_OK) {
+                    refreshRecyclerViewAfterEdit(data);
+                }
+                break;
+            default:
+                break;
+        }
+        refreshAmountOfMoney();
     }
 
     void onBillItemAdded(long id) {
@@ -165,51 +207,16 @@ public class BillListFragment extends Fragment {
         }
     }
 
-    public void startEditActivityForAdd() {
-        Intent intent = new Intent(getContext(), EditActivity.class);
-        intent.putExtra("action", "add");
-        startActivityForResult(intent, REQUEST_ADD_BILL);
-    }
-
-    @TestOnly
-    public boolean addBillListRandomly() {
-        MyBillTools.getBillListRandomly(10, getResources()).forEach((bill -> {
-            bill.save();
-            onBillItemAdded(bill.getId());
-        }));
-        billRecyclerView.scrollToPosition(0);
-        checkListEmpty();
-        return true;
-    }
-
-
     public void reloadData() {
         billItemList.clear();
         Log.d(TAG, " reloadData");
         billItemList.addAll(LitePal.where(getMergedQueryString()).order("timeMills desc").find(BillItem.class));
         adapter.notifyDataSetChanged();
         checkListEmpty();
+        refreshAmountOfMoney();
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_ADD_BILL:
-                if (resultCode == RESULT_OK) {
-                    refreshRecyclerView(data);
-                }
-                break;
-            case REQUEST_EDIT_BILL:
-                if (resultCode == RESULT_OK) {
-                    refreshRecyclerView(data);
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    private void refreshRecyclerView(Intent intent) {
+    private void refreshRecyclerViewAfterEdit(Intent intent) {
         int prePosition = intent.getIntExtra("prePosition", -1);
         long id = intent.getLongExtra("id", -1);
         switch (intent.getStringExtra("action")) {
@@ -230,6 +237,22 @@ public class BillListFragment extends Fragment {
         mActivity.fab.show();
     }
 
+    public void refreshAmountOfMoney() {
+        float payout = 0;
+        float total = 0;
+        for (BillItem billItem : billItemList) {
+            float price = billItem.getPrice();
+            if (billItem.isPayout()) {
+                payout += price;
+            }
+            total += price;
+        }
+        float income = total - payout;
+        textTotalAmount.setText(df.format(total));
+        textTotalIncome.setText(df.format(income));
+        textTotalPayout.setText(df.format(payout));
+    }
+
     public void checkListEmpty() {
         if (billItemList.isEmpty()) {
             emptyListImage.setVisibility(View.VISIBLE);
@@ -240,12 +263,15 @@ public class BillListFragment extends Fragment {
         Log.d(TAG, "checkListEmpty: " + (emptyListImage.getVisibility() == View.VISIBLE ? "Visible" : "invisible"));
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+    @TestOnly
+    public boolean addBillListRandomly() {
+        MyBillTools.getBillListRandomly(10, getResources()).forEach((bill -> {
+            bill.save();
+            onBillItemAdded(bill.getId());
+        }));
+        refreshAmountOfMoney();
+        billRecyclerView.scrollToPosition(0);
         checkListEmpty();
-        billRecyclerView.invalidateItemDecorations();
-        emptyListImage.requestLayout();
+        return true;
     }
-
 }
