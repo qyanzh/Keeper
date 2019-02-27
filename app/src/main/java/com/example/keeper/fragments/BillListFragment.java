@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.Group;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.keeper.BillAdapter;
@@ -37,11 +39,15 @@ public class BillListFragment extends Fragment {
     public BillAdapter adapter;
     public RecyclerView billRecyclerView;
     public MainActivity mActivity;
+    Group emptyListImage;
 
     public static final int REQUEST_ADD_BILL = 0;
     public static final int REQUEST_EDIT_BILL = 1;
     String[] queryConditions;
     String[] queryArguments;
+    //
+    ImageView imageView;
+    //
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,10 +57,10 @@ public class BillListFragment extends Fragment {
         if (bundle != null) {
             queryConditions = bundle.getStringArray("queryConditions");
             queryArguments = bundle.getStringArray("queryArguments");
+            TAG = bundle.getString("TAG");
         }
         billItemList = LitePal.where(getMergedQueryString()).order("timeMills desc").find(BillItem.class);
         adapter = new BillAdapter(this, billItemList);
-        checkListEmpty();
         setRetainInstance(true);
     }
 
@@ -64,7 +70,10 @@ public class BillListFragment extends Fragment {
         if (view == null) {
             view = inflater.inflate(R.layout.fragment_query, container, false);
         }
-        checkListEmpty();
+        //
+        imageView = view.findViewById(R.id.imageView);
+        //
+        emptyListImage = view.findViewById(R.id.empty_list_image);
         billRecyclerView = view.findViewById(R.id.bill_recyclerview);
         billRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         billRecyclerView.setAdapter(adapter);
@@ -92,32 +101,33 @@ public class BillListFragment extends Fragment {
                 }
             }
         }
+        Log.d(TAG, "getMergedQueryString : " + sb.toString());
         return sb.toString();
     }
 
 
     private boolean isMatchCondition(long id) {
         if (queryArguments == null) {
-            Log.d(TAG, "isMatchCondition: hahahahah");
             return true;
         }
         int i = 0, length = queryArguments.length;
         BillItem billItem = LitePal.find(BillItem.class, id);
-        for (; i < length; i++) {
+        outer:
+        for (; i < length; ++i) {
             switch (queryConditions[i]) {
                 case "year":
-                    if (String.valueOf(billItem.getYear()).equals(queryArguments[i])) {
-                        break;
+                    if (!String.valueOf(billItem.getYear()).equals(queryArguments[i])) {
+                        break outer;
                     }
                     break;
                 case "month":
-                    if (String.valueOf(billItem.getMonth()).equals(queryArguments[i])) {
-                        break;
+                    if (!String.valueOf(billItem.getMonth()).equals(queryArguments[i])) {
+                        break outer;
                     }
                     break;
                 case "day":
-                    if (String.valueOf(billItem.getMonth()).equals(queryArguments[i])) {
-                        break;
+                    if (!String.valueOf(billItem.getDay()).equals(queryArguments[i])) {
+                        break outer;
                     }
                     break;
                 default:
@@ -174,33 +184,21 @@ public class BillListFragment extends Fragment {
             onBillItemAdded(bill.getId());
         }));
         billRecyclerView.scrollToPosition(0);
-        checkListEmpty();
         return true;
     }
 
 
     public void reloadData() {
         billItemList.clear();
-        Log.d(TAG, "reloadData: BillListFragment" + this);
+        Log.d(TAG, " reloadData");
         billItemList.addAll(LitePal.where(getMergedQueryString()).order("timeMills desc").find(BillItem.class));
         adapter.notifyDataSetChanged();
         billRecyclerView.invalidateItemDecorations();
-    }
-
-    public void checkListEmpty() {
-        if (billItemList.isEmpty()) {
-            mActivity.emptyListImage.setVisibility(View.VISIBLE);
-            mActivity.emptyListImage.requestLayout();
-            mActivity.fab.show();
-        } else {
-            mActivity.emptyListImage.setVisibility(View.GONE);
-            mActivity.emptyListImage.requestLayout();
-        }
+        checkListEmpty();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "onActivityResult: ");
         switch (requestCode) {
             case REQUEST_ADD_BILL:
                 if (resultCode == RESULT_OK) {
@@ -223,12 +221,10 @@ public class BillListFragment extends Fragment {
         switch (intent.getStringExtra("action")) {
             case "add":
                 onBillItemAdded(id);
-                mActivity.emptyListImage.setVisibility(View.INVISIBLE);
                 Toast.makeText(getContext(), R.string.saved, Toast.LENGTH_SHORT).show();
                 break;
             case "delete":
                 onBillDeleted(prePosition);
-                checkListEmpty();
                 Toast.makeText(getContext(), R.string.deleted, Toast.LENGTH_SHORT).show();
                 break;
             case "edit":
@@ -236,7 +232,19 @@ public class BillListFragment extends Fragment {
                 Toast.makeText(getContext(), R.string.saved, Toast.LENGTH_SHORT).show();
                 break;
         }
+        checkListEmpty();
         mActivity.fab.show();
+    }
+
+    public void checkListEmpty() {
+        if (billItemList.isEmpty()) {
+            emptyListImage.setVisibility(View.VISIBLE);
+            mActivity.fab.show();
+        } else {
+            emptyListImage.setVisibility(View.INVISIBLE);
+        }
+        emptyListImage.requestLayout();
+        Log.d(TAG, "checkListEmpty: " + (emptyListImage.getVisibility() == View.VISIBLE ? "Visible" : "invisible"));
     }
 
 }

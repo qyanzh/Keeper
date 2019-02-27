@@ -7,18 +7,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.keeper.R;
-
 public class HomeFragment extends BillListFragment {
-
-    public static final String TAG = "HomeFragment";
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_home, container, false);
+        //view = inflater.inflate(R.layout.fragment_query, container, false);
         super.onCreateView(inflater, container, savedInstanceState);
-        checkListEmpty();
         return view;
     }
 

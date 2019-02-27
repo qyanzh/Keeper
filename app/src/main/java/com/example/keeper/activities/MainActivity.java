@@ -3,7 +3,6 @@ package com.example.keeper.activities;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.constraint.Group;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentTransaction;
@@ -55,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
     SumBillListFragment monthlyFragment;
     SumBillListFragment dailyFragment;
     List<BillListFragment> mFragments = new ArrayList<>();
-    public Group emptyListImage;
     public FloatingActionButton fab;
 
     @Override
@@ -73,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         }
         initView();
     }
+
 
     public void welcome() {
         SharedPreferences sp = getSharedPreferences("isFirstOpen", MODE_PRIVATE);
@@ -94,17 +93,12 @@ public class MainActivity extends AppCompatActivity {
         initToolBar();
         fab = findViewById(R.id.fab);
         mDrawerLayout = findViewById(R.id.drawer_layout);
-        emptyListImage = findViewById(R.id.empty_list_image);
         initFragment();
         initNavigation();
     }
 
     private void initFragment() {
 
-        if (homeFragment == null) {
-            homeFragment = new HomeFragment();
-            mFragments.add(homeFragment);
-        }
         if (yearlyFragment == null) {
             yearlyFragment = new SumBillListFragment();
             Calendar c = Calendar.getInstance();
@@ -117,19 +111,26 @@ public class MainActivity extends AppCompatActivity {
         if (monthlyFragment == null) {
             monthlyFragment = new SumBillListFragment();
             Calendar c = Calendar.getInstance();
-            Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.MONTH_MODE, c.get(YEAR), c.get(MONTH));
+            Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.MONTH_MODE, c.get(YEAR), c.get(MONTH) + 1);
             bundle.putString("TAG", MONTHLY_FRAGMENT_TAG);
             monthlyFragment.setArguments(bundle);
             mFragments.add(monthlyFragment);
-
         }
         if (dailyFragment == null) {
             dailyFragment = new SumBillListFragment();
             Calendar c = Calendar.getInstance();
-            Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.DAY_MODE, c.get(YEAR), c.get(MONTH), c.get(DAY_OF_MONTH));
+            Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.DAY_MODE, c.get(YEAR), c.get(MONTH) + 1, c.get(DAY_OF_MONTH));
             bundle.putString("TAG", DAILY_FRAGMENT_TAG);
             dailyFragment.setArguments(bundle);
             mFragments.add(dailyFragment);
+        }
+
+        if (homeFragment == null) {
+            homeFragment = new HomeFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("TAG", "HomeFragment");
+            homeFragment.setArguments(bundle);
+            mFragments.add(homeFragment);
         }
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -141,15 +142,18 @@ public class MainActivity extends AppCompatActivity {
         mFragments.forEach(ft::hide);
         ft.show(homeFragment).commit();
         currentFragment = homeFragment;
-        //getSupportFragmentManager().executePendingTransactions();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         setFabClick();
-        currentFragment.checkListEmpty();
-        emptyListImage.requestLayout();
+        mFragments.forEach(BillListFragment::checkListEmpty);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     private void initNavigation() {
@@ -246,8 +250,7 @@ public class MainActivity extends AppCompatActivity {
                 toolbar.setTitle(R.string.yearly);
                 break;
         }
-        currentFragment.checkListEmpty();
-        emptyListImage.requestLayout();
+
         setFabClick();
         mDrawerLayout.closeDrawers();
         return true;

@@ -45,22 +45,20 @@ public class SumBillListFragment extends BillListFragment {
         spinnerYear = view.findViewById(R.id.spinner_year);
         spinnerMonth = view.findViewById(R.id.spinner_month);
         spinnerDay = view.findViewById(R.id.spinner_day);
-        Calendar c = Calendar.getInstance();
-        int year = c.get(YEAR);
-        int month = c.get(MONTH);
-        int day = c.get(DAY_OF_MONTH);
+
         switch (queryArguments.length) {
             case 3:
+
                 setSpinner(spinnerDay, dayAdapter, days, 2);
-                spinnerDay.setSelection(day - 1);
             case 2:
+
                 setSpinner(spinnerMonth, monthAdapter, months, 1);
-                spinnerMonth.setSelection(month);
             case 1:
+
                 setSpinner(spinnerYear, yearAdapter, years, 0);
-                spinnerYear.setSelection(year - 2018);
             default:
-                break;
+                reloadData();
+                Log.d(TAG, "setSpinner " + queryArguments.length);
         }
         return view;
     }
@@ -71,16 +69,26 @@ public class SumBillListFragment extends BillListFragment {
                 strings);
         adapter.setDropDownViewResource(R.layout.spinner_text);
         spinner.setAdapter(adapter);
+        Calendar c = Calendar.getInstance();
+        switch (pos) {
+            case 0:
+                int year = c.get(YEAR);
+                spinnerYear.setSelection(year - 2018);
+                break;
+            case 1:
+                int month = c.get(MONTH) + 1;
+                spinnerMonth.setSelection(month - 1);
+                break;
+            case 2:
+                int day = c.get(DAY_OF_MONTH);
+                spinnerDay.setSelection(day - 1);
+        }
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 queryArguments[pos] = (String) parent.getItemAtPosition(position);
-                for (String s : queryArguments) {
-                    Log.d(TAG, "onItemSelected: " + s);
-                }
                 reloadData();
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }

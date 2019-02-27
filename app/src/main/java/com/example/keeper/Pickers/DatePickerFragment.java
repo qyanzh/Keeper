@@ -1,7 +1,7 @@
-package com.example.keeper.fragments;
+package com.example.keeper.Pickers;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
@@ -9,7 +9,7 @@ import com.example.keeper.BillItem;
 
 import org.jetbrains.annotations.NotNull;
 
-public class TimePickerFragment extends DialogFragment {
+public class DatePickerFragment extends DialogFragment {
     @NotNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -20,7 +20,6 @@ public class TimePickerFragment extends DialogFragment {
         } else {
             billItem = new BillItem();
         }
-        return new TimePickerDialog(getActivity(), (TimePickerDialog.OnTimeSetListener) getActivity(), billItem.getHour(), billItem.getMinute(),
-                true);
+        return new DatePickerDialog(getActivity(), (DatePickerDialog.OnDateSetListener) getActivity(), billItem.getYear(), billItem.getMonth() - 1, billItem.getDay());
     }
 }
