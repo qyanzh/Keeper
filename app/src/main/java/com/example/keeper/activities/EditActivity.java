@@ -53,7 +53,7 @@ public class EditActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_bill);
+        setContentView(R.layout.activity_edit);
         Intent intent = getIntent();
         action = intent.getStringExtra("action");
         if (action.equals("add")) {
@@ -81,7 +81,7 @@ public class EditActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.edit_bill, menu);
+        getMenuInflater().inflate(R.menu.edit, menu);
         return true;
     }
 

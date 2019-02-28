@@ -10,16 +10,22 @@ import com.example.keeper.BillItem;
 import org.jetbrains.annotations.NotNull;
 
 public class DatePickerFragment extends DialogFragment {
+
     @NotNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Bundle bundle = getArguments();
-        BillItem billItem;
-        if(bundle!=null) {
-            billItem = (BillItem) bundle.getSerializable("billItem");
-        } else {
-            billItem = new BillItem();
+        BillItem billItem = new BillItem();
+        if (bundle != null) {
+            BillItem nullable = (BillItem) bundle.getSerializable("billItem");
+            if (nullable != null) {
+                billItem = nullable;
+            }
         }
-        return new DatePickerDialog(getActivity(), (DatePickerDialog.OnDateSetListener) getActivity(), billItem.getYear(), billItem.getMonth() - 1, billItem.getDay());
+        if (getActivity() != null) {
+            return new DatePickerDialog(getActivity(), (DatePickerDialog.OnDateSetListener) getActivity(), billItem.getYear(), billItem.getMonth() - 1, billItem.getDay());
+        } else {
+            throw new RuntimeException("Activity is null");
+        }
     }
 }

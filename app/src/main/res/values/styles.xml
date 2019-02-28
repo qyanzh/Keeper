@@ -14,7 +14,7 @@
     </style>
 
     <style name="AppTheme.Launcher">
-        <item name="android:windowBackground">@drawable/app_launcher</item>
+        <item name="android:windowBackground">@drawable/app_bg_launcher</item>
     </style>
 
 

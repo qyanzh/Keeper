@@ -3,6 +3,7 @@ package com.example.keeper.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +13,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.example.keeper.R;
-import com.example.keeper.mytools.MyBillTools;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,22 +30,29 @@ public class SumBillListFragment extends BillListFragment {
     public static final String YEARLY_FRAGMENT_TAG = "YearlyFragment";
     public static final String MONTHLY_FRAGMENT_TAG = "MonthlyFragment";
     public static final String DAILY_FRAGMENT_TAG = "DailyFragment";
-    static final String[] years = MyBillTools.getYearStrings();
+    static final String[] years = getYearStrings();
     static final String[] months = new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
     static final String[] days = new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
             "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
-    ArrayAdapter<String> yearAdapter, monthAdapter, dayAdapter;
     List<Spinner> spinnerList = new ArrayList<>();
+
+    public static SumBillListFragment newInstance(String TAG, Bundle bundle) {
+        SumBillListFragment fragment = new SumBillListFragment();
+        fragment.TAG = TAG;
+        fragment.setArguments(bundle);
+        return fragment;
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_billlist, container, false);
         super.onCreateView(inflater, container, savedInstanceState);
+        LinearLayoutCompat dateSpinnerBar = view.findViewById(R.id.bar_date_spinner);
+        dateSpinnerBar.setVisibility(View.VISIBLE);
         spinnerYear = view.findViewById(R.id.spinner_year);
         spinnerMonth = view.findViewById(R.id.spinner_month);
         spinnerDay = view.findViewById(R.id.spinner_day);
-
         switch (queryArguments.length) {
             case 3:
                 setSpinner(spinnerDay, days, 2);
@@ -98,5 +105,15 @@ public class SumBillListFragment extends BillListFragment {
         });
         spinnerList.add(spinner);
     }
+
+    public static String[] getYearStrings() {
+        Calendar c = Calendar.getInstance();
+        List<String> ret = new ArrayList<>();
+        for (int i = 2018; i <= c.get(YEAR); ++i) {
+            ret.add(String.valueOf(i));
+        }
+        return ret.toArray(new String[0]);
+    }
+
 
 }

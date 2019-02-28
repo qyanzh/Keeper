@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             dailyFragment = (SumBillListFragment) getSupportFragmentManager().findFragmentByTag(DAILY_FRAGMENT_TAG);
         }
         initView();
+        initFragment();
     }
 
     @Override
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         fab = findViewById(R.id.fab);
         mDrawerLayout = findViewById(R.id.drawer_layout);
         initNavigation();
-        initFragment();
+
     }
 
     private void initToolBar() {
@@ -136,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
+            actionBar.setHomeAsUpIndicator(R.drawable.tb_ic_menu_white_24dp);
         }
         toolbar.setOnClickListener(new MyDoubleClickListener(300) {
             @Override
@@ -181,34 +182,23 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     private void initFragment() {
+        Calendar c = Calendar.getInstance();
         if (yearlyFragment == null) {
-            yearlyFragment = new SumBillListFragment();
-            Calendar c = Calendar.getInstance();
             Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.YEAR_MODE, c.get(YEAR));
-            bundle.putString("TAG", YEARLY_FRAGMENT_TAG);
-            yearlyFragment.setArguments(bundle);
+            yearlyFragment = SumBillListFragment.newInstance(YEARLY_FRAGMENT_TAG, bundle);
         }
 
         if (monthlyFragment == null) {
-            monthlyFragment = new SumBillListFragment();
-            Calendar c = Calendar.getInstance();
             Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.MONTH_MODE, c.get(YEAR), c.get(MONTH) + 1);
-            bundle.putString("TAG", MONTHLY_FRAGMENT_TAG);
-            monthlyFragment.setArguments(bundle);
+            monthlyFragment = SumBillListFragment.newInstance(MONTHLY_FRAGMENT_TAG, bundle);
         }
         if (dailyFragment == null) {
-            dailyFragment = new SumBillListFragment();
-            Calendar c = Calendar.getInstance();
             Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.DAY_MODE, c.get(YEAR), c.get(MONTH) + 1, c.get(DAY_OF_MONTH));
-            bundle.putString("TAG", DAILY_FRAGMENT_TAG);
-            dailyFragment.setArguments(bundle);
+            dailyFragment = SumBillListFragment.newInstance(DAILY_FRAGMENT_TAG, bundle);
         }
 
         if (homeFragment == null) {
-            homeFragment = new HomeFragment();
-            Bundle bundle = new Bundle();
-            bundle.putString("TAG", "HomeFragment");
-            homeFragment.setArguments(bundle);
+            homeFragment = HomeFragment.newInstance(HOME_FRAGMENT_TAG);
         }
         showFragment(homeFragment);
     }

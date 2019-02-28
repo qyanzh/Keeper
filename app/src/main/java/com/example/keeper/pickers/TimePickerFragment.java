@@ -14,13 +14,18 @@ public class TimePickerFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Bundle bundle = getArguments();
-        BillItem billItem;
-        if(bundle!=null) {
-            billItem = (BillItem) bundle.getSerializable("billItem");
-        } else {
-            billItem = new BillItem();
+        BillItem billItem = new BillItem();
+        if (bundle != null) {
+            BillItem nullable = (BillItem) bundle.getSerializable("billItem");
+            if (nullable != null) {
+                billItem = nullable;
+            }
         }
-        return new TimePickerDialog(getActivity(), (TimePickerDialog.OnTimeSetListener) getActivity(), billItem.getHour(), billItem.getMinute(),
-                true);
+        if (getActivity() != null) {
+            return new TimePickerDialog(getActivity(), (TimePickerDialog.OnTimeSetListener) getActivity(), billItem.getHour(), billItem.getMinute(),
+                    true);
+        } else {
+            throw new RuntimeException("Activity is null");
+        }
     }
 }

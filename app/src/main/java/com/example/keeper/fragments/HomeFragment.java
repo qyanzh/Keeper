@@ -13,6 +13,12 @@ import com.example.keeper.R;
 
 public class HomeFragment extends BillListFragment {
 
+    public static HomeFragment newInstance(String TAG) {
+        HomeFragment fragment = new HomeFragment();
+        fragment.TAG = TAG;
+        return fragment;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

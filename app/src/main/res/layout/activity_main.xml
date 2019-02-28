@@ -41,11 +41,11 @@
             android:focusable="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_add_white_24dp" />
+            app:srcCompat="@drawable/fab_ic_add_white_24dp" />
 
         <include
             android:id="@+id/home_fragment_container"
-            layout="@layout/empty_list"
+            layout="@layout/bg_empty_list"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"

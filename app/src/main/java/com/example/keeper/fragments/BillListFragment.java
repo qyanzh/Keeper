@@ -20,17 +20,21 @@ import com.example.keeper.BillItem;
 import com.example.keeper.R;
 import com.example.keeper.activities.EditActivity;
 import com.example.keeper.activities.MainActivity;
-import com.example.keeper.mytools.MyBillTools;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 
 import org.jetbrains.annotations.TestOnly;
 import org.litepal.LitePal;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import static android.app.Activity.RESULT_OK;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
 
 public class BillListFragment extends Fragment {
 
@@ -50,6 +54,12 @@ public class BillListFragment extends Fragment {
     public static final int REQUEST_EDIT_BILL = 1;
     String[] queryConditions;
     String[] queryArguments;
+
+    public static BillListFragment newInstance(String TAG) {
+        BillListFragment fragment = new BillListFragment();
+        fragment.TAG = TAG;
+        return fragment;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -179,7 +189,7 @@ public class BillListFragment extends Fragment {
         Log.d(TAG, "onBillItemAdded: ");
         BillItem billItem = LitePal.find(BillItem.class, id);
         if (isMatchCondition(id)) {
-            int newPosition = Collections.binarySearch(billItemList, billItem, new MyBillTools.CompareBillByTime());
+            int newPosition = Collections.binarySearch(billItemList, billItem);
             if (newPosition < 0) newPosition = -newPosition - 1;
             billItemList.add(newPosition, billItem);
             billAdapter.notifyItemInserted(newPosition);
@@ -195,7 +205,7 @@ public class BillListFragment extends Fragment {
     void onBillEdited(int prePosition, long id) {
         BillItem billItem = LitePal.find(BillItem.class, id);
         if (isMatchCondition(id)) {
-            int newPosition = Collections.binarySearch(billItemList, billItem, new MyBillTools.CompareBillByTime());
+            int newPosition = Collections.binarySearch(billItemList, billItem);
             if (newPosition < 0) newPosition = -newPosition - 1;
             if (newPosition == prePosition) {
                 billItemList.set(prePosition, billItem);
@@ -271,7 +281,7 @@ public class BillListFragment extends Fragment {
 
     @TestOnly
     public boolean addBillListRandomly() {
-        MyBillTools.getBillListRandomly(10, getResources()).forEach((bill -> {
+        getBillListRandomly(10).forEach((bill -> {
             bill.save();
             onBillItemAdded(bill.getId());
         }));
@@ -279,5 +289,34 @@ public class BillListFragment extends Fragment {
         billRecyclerView.scrollToPosition(0);
         checkListEmpty();
         return true;
+    }
+
+    @TestOnly
+    public List<BillItem> getBillListRandomly(int amounts) {
+        String[] incomeCategory = getResources().getStringArray(R.array.incomeCategory);
+        String[] payoutCategory = getResources().getStringArray(R.array.payoutCategory);
+        List<BillItem> billItemList = new ArrayList<>();
+        for (int i = 0; i < amounts; ++i) {
+            BillItem billItem = new BillItem();
+            billItem.setPrice(new Random().nextInt() % 200);
+            if (billItem.getPrice() < 0) billItem.setType(BillItem.PAYOUT);
+            else billItem.setType(BillItem.INCOME);
+            if (billItem.isIncome()) {
+                billItem.setCategory(incomeCategory[Math.abs(new Random().nextInt() % incomeCategory.length)]);
+            } else {
+                billItem.setCategory(payoutCategory[Math.abs(new Random().nextInt() % payoutCategory.length)]);
+            }
+            Calendar c = Calendar.getInstance();
+            Random random = new Random();
+            int year = c.get(YEAR) - Math.abs(random.nextInt(2));
+            int month = Math.abs(random.nextInt((year == c.get(YEAR) ? c.get(MONTH) + 1 : 12)));
+            int day = Math.abs(random.nextInt(28));
+            int hour = Math.abs(random.nextInt(24));
+            int minute = Math.abs(random.nextInt(60));
+            c.set(year, month, day, hour, minute);
+            billItem.setTime(c.getTimeInMillis());
+            billItemList.add(billItem);
+        }
+        return billItemList;
     }
 }

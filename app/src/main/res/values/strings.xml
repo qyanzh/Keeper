@@ -48,5 +48,6 @@
     <string name="summary_dev_mode">长按fab随机添加项目,一键删库menu</string>
     <string name="summary_reset">开启后下次启动App将还原到初始状态</string>
     <string name="settings">设置</string>
+    <string name="west2online">West2Online</string>
 
 </resources>

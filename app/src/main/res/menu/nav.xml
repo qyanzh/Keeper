@@ -4,32 +4,32 @@
     <group android:checkableBehavior="single">
     <item
         android:id="@+id/nav_menu_home"
-        android:icon="@drawable/ic_home_black_24dp"
+        android:icon="@drawable/nav_ic_home"
         android:title="@string/title_home" />
 
     <item
         android:id="@+id/nav_menu_today"
-        android:icon="@drawable/ic_nav_today"
+        android:icon="@drawable/nav_ic_today"
         android:title="@string/daily"
         />
 
 
     <item
         android:id="@+id/nav_menu_monthly"
-        android:icon="@drawable/ic_nav_month"
+        android:icon="@drawable/nav_ic_month"
         android:title="@string/monthly"
         />
 
     <item
         android:id="@+id/nav_menu_yearly"
-        android:icon="@drawable/ic_nav_year"
+        android:icon="@drawable/nav_ic_year"
         android:title="@string/yearly"
         />
     </group>
 
     <item
         android:id="@+id/nav_menu_settings"
-        android:icon="@drawable/ic_settings_black_24dp"
+        android:icon="@drawable/nav_ic_settings"
         android:title="@string/settings" />
 
 </menu>

@@ -12,7 +12,7 @@ import static java.util.Calendar.MINUTE;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
-public class BillItem extends LitePalSupport implements Cloneable, Serializable {
+public class BillItem extends LitePalSupport implements Cloneable, Serializable, Comparable<BillItem> {
 
     public static final int INCOME = 0;
 
@@ -55,6 +55,10 @@ public class BillItem extends LitePalSupport implements Cloneable, Serializable 
         return null;
     }
 
+    @Override
+    public int compareTo(BillItem o) {
+        return Long.compare(o.getTimeMills(), this.getTimeMills());
+    }
 
     public void setTime(long timeMills) {
         Calendar c = Calendar.getInstance();
