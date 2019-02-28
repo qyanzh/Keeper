@@ -64,7 +64,7 @@ public class SumBillListFragment extends BillListFragment {
         spinner.setVisibility(View.VISIBLE);
         adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item,
                 strings);
-        adapter.setDropDownViewResource(R.layout.spinner_text);
+        adapter.setDropDownViewResource(R.layout.spinner_item);
         spinner.setAdapter(adapter);
         Calendar c = Calendar.getInstance();
         switch (pos) {

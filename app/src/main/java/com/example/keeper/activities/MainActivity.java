@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.TransparentStatusBar);
         Log.d(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -206,24 +207,29 @@ public class MainActivity extends AppCompatActivity {
         }
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        mFragments.forEach(mFragment -> {
-            if (!mFragment.isAdded()) {
-                ft.add(R.id.home_fragment_container, mFragment, mFragment.TAG);
-            }
-        });
-        mFragments.forEach(ft::hide);
-        ft.show(homeFragment).commit();
+        ft.add(R.id.home_fragment_container, homeFragment, homeFragment.TAG).commit();
+//        mFragments.forEach(mFragment -> {
+//            if (!mFragment.isAdded()) {
+//                ft.add(R.id.home_fragment_container, mFragment, mFragment.TAG);
+//            }
+//        });
+//        mFragments.forEach(ft::hide);
+//        ft.show(homeFragment).commit();
         currentFragment = homeFragment;
     }
 
 
     private void showFragment(BillListFragment selectedFragment) {
         if (currentFragment != selectedFragment) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.hide(currentFragment);
+            if (!selectedFragment.isAdded()) {
+                ft.add(R.id.home_fragment_container, selectedFragment, selectedFragment.TAG);
+            } else {
+                ft.show(selectedFragment);
+            }
+            ft.commitNow();
             selectedFragment.reloadData();
-            getSupportFragmentManager().beginTransaction()
-                    .hide(currentFragment)
-                    .show(selectedFragment)
-                    .commit();
         }
         currentFragment = selectedFragment;
     }
