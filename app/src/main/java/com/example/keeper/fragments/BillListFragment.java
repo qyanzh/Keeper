@@ -38,14 +38,14 @@ public class BillListFragment extends Fragment {
     public View view;
     public String TAG;
     public List<BillItem> billItemList;
-    public BillAdapter adapter;
+    public BillAdapter billAdapter;
     public RecyclerView billRecyclerView;
     public MainActivity mActivity;
     Group emptyListImage;
     TextView textTotalIncome;
     TextView textTotalPayout;
     TextView textTotalAmount;
-
+    public boolean isFirstShow = true;
     public static final int REQUEST_ADD_BILL = 0;
     public static final int REQUEST_EDIT_BILL = 1;
     String[] queryConditions;
@@ -62,15 +62,17 @@ public class BillListFragment extends Fragment {
             TAG = bundle.getString("TAG");
         }
         billItemList = LitePal.where(getMergedQueryString()).order("timeMills desc").find(BillItem.class);
-        adapter = new BillAdapter(this, billItemList);
+        billAdapter = new BillAdapter(this, billItemList);
         setRetainInstance(true);
+        Log.d(TAG, "onCreate: ");
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView: ");
         if (view == null) {
-            view = inflater.inflate(R.layout.fragment_query, container, false);
+            view = inflater.inflate(R.layout.fragment_billlist, container, false);
         }
         textTotalIncome = view.findViewById(R.id.text_income_amount);
         textTotalPayout = view.findViewById(R.id.text_payout_amount);
@@ -78,11 +80,11 @@ public class BillListFragment extends Fragment {
         emptyListImage = view.findViewById(R.id.empty_list_image);
         billRecyclerView = view.findViewById(R.id.bill_recyclerview);
         billRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        billRecyclerView.setAdapter(adapter);
+        billRecyclerView.setAdapter(billAdapter);
         billRecyclerView.setHasFixedSize(true);
-        final StickyRecyclerHeadersDecoration headersDecoration = new StickyRecyclerHeadersDecoration(adapter);
+        final StickyRecyclerHeadersDecoration headersDecoration = new StickyRecyclerHeadersDecoration(billAdapter);
         billRecyclerView.addItemDecoration(headersDecoration);
-        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+        billAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onChanged() {
                 headersDecoration.invalidateHeaders();
@@ -93,6 +95,7 @@ public class BillListFragment extends Fragment {
 
     @Override
     public void onResume() {
+        Log.d(TAG, "onResume: ");
         super.onResume();
         checkListEmpty();
         refreshAmountOfMoney();
@@ -179,14 +182,14 @@ public class BillListFragment extends Fragment {
             int newPosition = Collections.binarySearch(billItemList, billItem, new MyBillTools.CompareBillByTime());
             if (newPosition < 0) newPosition = -newPosition - 1;
             billItemList.add(newPosition, billItem);
-            adapter.notifyItemInserted(newPosition);
+            billAdapter.notifyItemInserted(newPosition);
             billRecyclerView.scrollToPosition(newPosition);
         }
     }
 
     void onBillDeleted(int prePosition) {
         billItemList.remove(prePosition);
-        adapter.notifyItemRemoved(prePosition);
+        billAdapter.notifyItemRemoved(prePosition);
     }
 
     void onBillEdited(int prePosition, long id) {
@@ -196,24 +199,27 @@ public class BillListFragment extends Fragment {
             if (newPosition < 0) newPosition = -newPosition - 1;
             if (newPosition == prePosition) {
                 billItemList.set(prePosition, billItem);
-                adapter.notifyItemChanged(prePosition);
+                billAdapter.notifyItemChanged(prePosition);
             } else {
-                adapter.notifyItemRemoved(prePosition);
-                adapter.notifyItemInserted(newPosition);
+                billAdapter.notifyItemRemoved(prePosition);
+                billAdapter.notifyItemInserted(newPosition);
                 billRecyclerView.scrollToPosition(newPosition);
             }
         } else {
-            adapter.notifyItemRemoved(prePosition);
+            billAdapter.notifyItemRemoved(prePosition);
         }
     }
 
     public void reloadData() {
-        billItemList.clear();
-        Log.d(TAG, " reloadData");
-        billItemList.addAll(LitePal.where(getMergedQueryString()).order("timeMills desc").find(BillItem.class));
-        adapter.notifyDataSetChanged();
-        checkListEmpty();
-        refreshAmountOfMoney();
+        if (!isFirstShow) {
+            billItemList.clear();
+            Log.d(TAG, " reloadData");
+            billItemList.addAll(LitePal.where(getMergedQueryString()).order("timeMills desc").find(BillItem.class));
+            billAdapter.notifyDataSetChanged();
+            checkListEmpty();
+            refreshAmountOfMoney();
+        }
+        isFirstShow = false;
     }
 
     private void refreshRecyclerViewAfterEdit(Intent intent) {

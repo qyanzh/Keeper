@@ -26,6 +26,7 @@
 
     <string name="add">新建</string>
     <string name="delete">删除</string>
+    <string name="deleteAll">删除数据库</string>
     <string name="edit">编辑</string>
     <string name="search">查找</string>
     <string name="giveUpOperationQM">放弃本次操作?</string>
@@ -41,5 +42,11 @@
     <string name="incomeWithSignal">收入:</string>
     <string name="totalWithSignal">合计:</string>
     <string name="confirmDeleteAll">确认清空数据库?(供测试)</string>
+    <string name="developerMode">开发者选项</string>
+    <string name="openDevMode">打开开发者选项</string>
+    <string name="resetApp">重置应用程序</string>
+    <string name="summary_dev_mode">长按fab随机添加项目,一键删库menu</string>
+    <string name="summary_reset">开启后下次启动App将还原到初始状态</string>
+    <string name="settings">设置</string>
 
 </resources>

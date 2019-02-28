@@ -40,7 +40,7 @@ public class SumBillListFragment extends BillListFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_datequery, container, false);
+        view = inflater.inflate(R.layout.fragment_billlist, container, false);
         super.onCreateView(inflater, container, savedInstanceState);
         spinnerYear = view.findViewById(R.id.spinner_year);
         spinnerMonth = view.findViewById(R.id.spinner_month);
@@ -48,11 +48,11 @@ public class SumBillListFragment extends BillListFragment {
 
         switch (queryArguments.length) {
             case 3:
-                setSpinner(spinnerDay, dayAdapter, days, 2);
+                setSpinner(spinnerDay, days, 2);
             case 2:
-                setSpinner(spinnerMonth, monthAdapter, months, 1);
+                setSpinner(spinnerMonth, months, 1);
             case 1:
-                setSpinner(spinnerYear, yearAdapter, years, 0);
+                setSpinner(spinnerYear, years, 0);
             default:
                 reloadData();
                 Log.d(TAG, "setSpinner " + queryArguments.length);
@@ -60,12 +60,17 @@ public class SumBillListFragment extends BillListFragment {
         return view;
     }
 
-    public void setSpinner(Spinner spinner, ArrayAdapter<String> adapter, String[] strings, int pos) {
+    public void setSpinner(Spinner spinner, String[] strings, int pos) {
         spinner.setVisibility(View.VISIBLE);
-        adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item,
-                strings);
-        adapter.setDropDownViewResource(R.layout.spinner_item);
-        spinner.setAdapter(adapter);
+        ArrayAdapter<String> arrayAdapter = null;
+        if (getContext() != null) {
+            arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item,
+                    strings);
+        }
+        if (arrayAdapter != null) {
+            arrayAdapter.setDropDownViewResource(R.layout.spinner_item);
+        }
+        spinner.setAdapter(arrayAdapter);
         Calendar c = Calendar.getInstance();
         switch (pos) {
             case 0:
