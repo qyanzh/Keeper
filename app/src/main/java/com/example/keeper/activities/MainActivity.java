@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentTransaction;
@@ -13,7 +12,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -109,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     public void welcome() {
         SharedPreferences sp = getSharedPreferences("isFirstOpen", MODE_PRIVATE);
-        boolean isFirstOpen = sp.getBoolean("isFirstOpen", false);
+        boolean isFirstOpen = sp.getBoolean("isFirstOpen", true);
         if (isFirstOpen) {
             BillItem welcome = new BillItem();
             welcome.setPrice(0);
@@ -237,17 +235,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             } else {
                 fab.setOnLongClickListener(null);
             }
-            currentFragment.billRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
-                    if (dy > 0) {
-                        fab.hide();
-                    } else {
-                        fab.show();
-                    }
-                }
-            });
         }
     }
 

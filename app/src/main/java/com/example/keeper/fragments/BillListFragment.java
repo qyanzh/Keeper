@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,9 +16,9 @@ import android.widget.Toast;
 import com.example.keeper.BillAdapter;
 import com.example.keeper.BillItem;
 import com.example.keeper.R;
-import com.example.keeper.mytools.MyRecyclerView;
 import com.example.keeper.activities.EditActivity;
 import com.example.keeper.activities.MainActivity;
+import com.example.keeper.mytools.MyRecyclerView;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 
 import org.jetbrains.annotations.TestOnly;
@@ -252,14 +251,13 @@ public class BillListFragment extends Fragment {
 
 
     @TestOnly
-    public boolean addBillListRandomly() {
+    public void addBillListRandomly() {
         getBillListRandomly(10).forEach((bill -> {
             bill.save();
             onBillItemAdded(bill.getId());
         }));
         refreshAmountOfMoney();
         billRecyclerView.scrollToPosition(0);
-        return true;
     }
 
     @TestOnly
@@ -268,25 +266,28 @@ public class BillListFragment extends Fragment {
         String[] payoutCategory = getResources().getStringArray(R.array.payoutCategory);
         List<BillItem> billItemList = new ArrayList<>();
         for (int i = 0; i < amounts; ++i) {
-            BillItem billItem = new BillItem();
-            billItem.setPrice(new Random().nextInt() % 200);
-            if (billItem.getPrice() < 0) billItem.setType(BillItem.PAYOUT);
-            else billItem.setType(BillItem.INCOME);
-            if (billItem.isIncome()) {
-                billItem.setCategory(incomeCategory[Math.abs(new Random().nextInt() % incomeCategory.length)]);
-            } else {
-                billItem.setCategory(payoutCategory[Math.abs(new Random().nextInt() % payoutCategory.length)]);
-            }
             Calendar c = Calendar.getInstance();
             Random random = new Random();
             int year = c.get(YEAR) - Math.abs(random.nextInt(2));
             int month = Math.abs(random.nextInt((year == c.get(YEAR) ? c.get(MONTH) + 1 : 12)));
             int day = Math.abs(random.nextInt(28));
-            int hour = Math.abs(random.nextInt(24));
-            int minute = Math.abs(random.nextInt(60));
-            c.set(year, month, day, hour, minute);
-            billItem.setTime(c.getTimeInMillis());
-            billItemList.add(billItem);
+            for(int j=0;j<4;++j) {
+                int hour = Math.abs(random.nextInt(24));
+                int minute = Math.abs(random.nextInt(60));
+                BillItem billItem = new BillItem();
+                billItem.setPrice(new Random().nextInt() % 200);
+                if (billItem.getPrice() < 0) billItem.setType(BillItem.PAYOUT);
+                else billItem.setType(BillItem.INCOME);
+                if (billItem.isIncome()) {
+                    billItem.setCategory(incomeCategory[Math.abs(new Random().nextInt() % incomeCategory.length)]);
+                } else {
+                    billItem.setCategory(payoutCategory[Math.abs(new Random().nextInt() % payoutCategory.length)]);
+                }
+
+                c.set(year, month, day, hour, minute);
+                billItem.setTime(c.getTimeInMillis());
+                billItemList.add(billItem);
+            }
         }
         return billItemList;
     }

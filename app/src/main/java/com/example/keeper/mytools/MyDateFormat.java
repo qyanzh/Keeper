@@ -1,8 +1,11 @@
 package com.example.keeper.mytools;
 
 
+import org.jetbrains.annotations.NotNull;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 import static java.util.Calendar.DAY_OF_MONTH;
 import static java.util.Calendar.MONTH;
@@ -10,10 +13,10 @@ import static java.util.Calendar.YEAR;
 
 
 public class MyDateFormat {
-    //TODO:getDateTimeInstance();
-    public static SimpleDateFormat sameYearFormatter = new SimpleDateFormat("MM月dd日");
-    public static SimpleDateFormat normalDateFormatter = new SimpleDateFormat("yyyy年MM月dd日");
-    public static SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
+
+    private static SimpleDateFormat sameYearFormatter = new SimpleDateFormat("MM月dd日", Locale.CHINA);
+    private static SimpleDateFormat normalDateFormatter = new SimpleDateFormat("yyyy年MM月dd日",Locale.CHINA);
+    public static SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm",Locale.CHINA);
 
     public static String format(long timeMills, boolean changeRecent) {
         Calendar c = Calendar.getInstance();
@@ -43,6 +46,7 @@ public class MyDateFormat {
         return ret;
     }
 
+    @NotNull
     public static String formatWithTime(long timeMills, boolean changeRecent) {
         return format(timeMills, changeRecent) + " " + timeFormatter.format(timeMills);
     }

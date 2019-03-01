@@ -3,13 +3,9 @@ package com.example.keeper.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-
-import com.example.keeper.R;
 
 
 public class HomeFragment extends BillListFragment {
@@ -26,12 +22,6 @@ public class HomeFragment extends BillListFragment {
         super.onCreateView(inflater, container, savedInstanceState);
         return view;
     }
-
-
-
-
-
-
 
 
 }

@@ -9,9 +9,9 @@ public class MyBundleHelper {
     public static final int YEAR_MODE = 0;
     public static final int MONTH_MODE = 1;
     public static final int DAY_MODE = 2;
-    public static final String[] YEAR_QUERY_CONDITION = {"year"};
-    public static final String[] MONTH_QUERY_CONDITION = {"year", "month"};
-    public static final String[] DAY_QUERY_CONDITION = {"year", "month", "day"};
+    private static final String[] YEAR_QUERY_CONDITION = {"year"};
+    private static final String[] MONTH_QUERY_CONDITION = {"year", "month"};
+    private static final String[] DAY_QUERY_CONDITION = {"year", "month", "day"};
 
 
     @NotNull
