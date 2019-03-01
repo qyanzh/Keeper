@@ -3,13 +3,13 @@ package com.example.keeper.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import com.example.keeper.R;
@@ -46,9 +46,8 @@ public class SumBillListFragment extends BillListFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_billlist, container, false);
         super.onCreateView(inflater, container, savedInstanceState);
-        LinearLayoutCompat dateSpinnerBar = view.findViewById(R.id.bar_date_spinner);
+        LinearLayout dateSpinnerBar = view.findViewById(R.id.bar_date_spinner);
         dateSpinnerBar.setVisibility(View.VISIBLE);
         spinnerYear = view.findViewById(R.id.spinner_year);
         spinnerMonth = view.findViewById(R.id.spinner_month);

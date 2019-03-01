@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.Group;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +17,7 @@ import android.widget.Toast;
 import com.example.keeper.BillAdapter;
 import com.example.keeper.BillItem;
 import com.example.keeper.R;
+import com.example.keeper.mytools.MyRecyclerView;
 import com.example.keeper.activities.EditActivity;
 import com.example.keeper.activities.MainActivity;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
@@ -43,9 +43,9 @@ public class BillListFragment extends Fragment {
     public String TAG;
     public List<BillItem> billItemList;
     public BillAdapter billAdapter;
-    public RecyclerView billRecyclerView;
+    public MyRecyclerView billRecyclerView;
+
     public MainActivity mActivity;
-    Group emptyListImage;
     TextView textTotalIncome;
     TextView textTotalPayout;
     TextView textTotalAmount;
@@ -81,37 +81,20 @@ public class BillListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: ");
-        if (view == null) {
-            view = inflater.inflate(R.layout.fragment_billlist, container, false);
-        }
+        view = inflater.inflate(R.layout.fragment_billlist, container, false);
         textTotalIncome = view.findViewById(R.id.text_income_amount);
         textTotalPayout = view.findViewById(R.id.text_payout_amount);
         textTotalAmount = view.findViewById(R.id.text_total_amount);
-        emptyListImage = view.findViewById(R.id.empty_list_image);
-        billRecyclerView = view.findViewById(R.id.bill_recyclerview);
+        billRecyclerView = view.findViewById(R.id.bill_recyclerView);
         billRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         billRecyclerView.setAdapter(billAdapter);
         billRecyclerView.setHasFixedSize(true);
         final StickyRecyclerHeadersDecoration headersDecoration = new StickyRecyclerHeadersDecoration(billAdapter);
         billRecyclerView.addItemDecoration(headersDecoration);
-        billAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                headersDecoration.invalidateHeaders();
-            }
-        });
+        billRecyclerView.setEmptyView(view.findViewById(R.id.empty_view));
         return view;
     }
 
-    @Override
-    public void onResume() {
-        Log.d(TAG, "onResume: ");
-        super.onResume();
-        checkListEmpty();
-        refreshAmountOfMoney();
-        billRecyclerView.invalidateItemDecorations();
-        emptyListImage.requestLayout();
-    }
 
     String getMergedQueryString() {
         StringBuilder sb = new StringBuilder();
@@ -160,7 +143,7 @@ public class BillListFragment extends Fragment {
         return i == length;
     }
 
-    public void startEditActivityForAdd() {
+    public void addBill() {
         Intent intent = new Intent(getContext(), EditActivity.class);
         intent.putExtra("action", "add");
         startActivityForResult(intent, REQUEST_ADD_BILL);
@@ -226,7 +209,6 @@ public class BillListFragment extends Fragment {
             Log.d(TAG, " reloadData");
             billItemList.addAll(LitePal.where(getMergedQueryString()).order("timeMills desc").find(BillItem.class));
             billAdapter.notifyDataSetChanged();
-            checkListEmpty();
             refreshAmountOfMoney();
         }
         isFirstShow = false;
@@ -249,7 +231,6 @@ public class BillListFragment extends Fragment {
                 Toast.makeText(getContext(), R.string.saved, Toast.LENGTH_SHORT).show();
                 break;
         }
-        checkListEmpty();
         mActivity.fab.show();
     }
 
@@ -269,15 +250,6 @@ public class BillListFragment extends Fragment {
         textTotalPayout.setText(df.format(payout));
     }
 
-    public void checkListEmpty() {
-        if (billItemList.isEmpty()) {
-            emptyListImage.setVisibility(View.VISIBLE);
-            mActivity.fab.show();
-        } else {
-            emptyListImage.setVisibility(View.GONE);
-        }
-        Log.d(TAG, "checkListEmpty: " + (emptyListImage.getVisibility() == View.VISIBLE ? "Visible" : "invisible"));
-    }
 
     @TestOnly
     public boolean addBillListRandomly() {
@@ -287,7 +259,6 @@ public class BillListFragment extends Fragment {
         }));
         refreshAmountOfMoney();
         billRecyclerView.scrollToPosition(0);
-        checkListEmpty();
         return true;
     }
 

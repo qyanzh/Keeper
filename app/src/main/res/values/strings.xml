@@ -49,5 +49,6 @@
     <string name="summary_reset">开启后下次启动App将还原到初始状态</string>
     <string name="settings">设置</string>
     <string name="west2online">West2Online</string>
+    <string name="emptyListIndicator">空列表图示</string>
 
 </resources>

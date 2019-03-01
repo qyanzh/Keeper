@@ -223,10 +223,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     public void setFabClick() {
         if (currentFragment != null) {
-            fab.setOnClickListener(v -> currentFragment.startEditActivityForAdd());
+            fab.setOnClickListener(v -> currentFragment.addBill());
             if (sharedPreferences.getBoolean(PREF_DEV_MODE, false)) {
                 fab.setOnLongClickListener(v -> {
-                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+                    AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
                     builder.setMessage(getString(R.string.randomlyAddForTest))
                             .setPositiveButton(R.string.confirm, (dialog, id) -> currentFragment.addBillListRandomly())
                             .setNegativeButton(R.string.cancel, (dialog, id) -> {
@@ -261,25 +261,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
     }
 
-    @TestOnly
-    public void deleteDatabase() {
-        android.app.AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(getString(R.string.confirmDeleteAll))
-                .setPositiveButton(R.string.confirm, (dialog, id) -> {
-                    LitePal.deleteAll(BillItem.class);
-                    mFragments.forEach(mFragment -> {
-                        mFragment.billItemList.clear();
-                        mFragment.billAdapter.notifyDataSetChanged();
-                        mFragment.refreshAmountOfMoney();
-                        mFragment.checkListEmpty();
-                    });
-                    fab.show();
-                })
-                .setNegativeButton(R.string.cancel, (dialog, id) -> {
-                });
-        builder.create().show();
-    }
-
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(PREF_DEV_MODE)) {
@@ -296,5 +277,23 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
         invalidateOptionsMenu();
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    @TestOnly
+    public void deleteDatabase() {
+        android.app.AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(getString(R.string.confirmDeleteAll))
+                .setPositiveButton(R.string.confirm, (dialog, id) -> {
+                    LitePal.deleteAll(BillItem.class);
+                    mFragments.forEach(mFragment -> {
+                        mFragment.billItemList.clear();
+                        mFragment.billAdapter.notifyDataSetChanged();
+                        mFragment.refreshAmountOfMoney();
+                    });
+                    fab.show();
+                })
+                .setNegativeButton(R.string.cancel, (dialog, id) -> {
+                });
+        builder.create().show();
     }
 }
