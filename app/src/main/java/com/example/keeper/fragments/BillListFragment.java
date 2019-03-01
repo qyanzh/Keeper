@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +35,7 @@ import static android.app.Activity.RESULT_OK;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
-public class BillListFragment extends Fragment {
+public abstract class BillListFragment extends Fragment {
 
     private static final DecimalFormat df = new DecimalFormat("¥###,###,##0.00");
     public View view;
@@ -43,7 +43,6 @@ public class BillListFragment extends Fragment {
     public List<BillItem> billItemList;
     public BillAdapter billAdapter;
     public MyRecyclerView billRecyclerView;
-
     public MainActivity mActivity;
     TextView textTotalIncome;
     TextView textTotalPayout;
@@ -53,12 +52,6 @@ public class BillListFragment extends Fragment {
     public static final int REQUEST_EDIT_BILL = 1;
     String[] queryConditions;
     String[] queryArguments;
-
-    public static BillListFragment newInstance(String TAG) {
-        BillListFragment fragment = new BillListFragment();
-        fragment.TAG = TAG;
-        return fragment;
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,11 +63,13 @@ public class BillListFragment extends Fragment {
             queryArguments = bundle.getStringArray("queryArguments");
             TAG = bundle.getString("TAG");
         }
-        billItemList = LitePal.where(getMergedQueryString()).order("timeMills desc").find(BillItem.class);
+        billItemList = getInitList();
         billAdapter = new BillAdapter(this, billItemList);
         setRetainInstance(true);
         Log.d(TAG, "onCreate: ");
     }
+
+    abstract List<BillItem> getInitList();
 
     @Nullable
     @Override
@@ -85,7 +80,7 @@ public class BillListFragment extends Fragment {
         textTotalPayout = view.findViewById(R.id.text_payout_amount);
         textTotalAmount = view.findViewById(R.id.text_total_amount);
         billRecyclerView = view.findViewById(R.id.bill_recyclerView);
-        billRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        billRecyclerView.setLayoutManager(new GridLayoutManager(getContext(),1));
         billRecyclerView.setAdapter(billAdapter);
         billRecyclerView.setHasFixedSize(true);
         final StickyRecyclerHeadersDecoration headersDecoration = new StickyRecyclerHeadersDecoration(billAdapter);
@@ -95,7 +90,7 @@ public class BillListFragment extends Fragment {
     }
 
 
-    String getMergedQueryString() {
+    String getMergedWhereString() {
         StringBuilder sb = new StringBuilder();
         if (queryArguments != null) {
             int length = queryArguments.length;
@@ -108,7 +103,7 @@ public class BillListFragment extends Fragment {
                 }
             }
         }
-        Log.d(TAG, "getMergedQueryString : " + sb.toString());
+        Log.d(TAG, "getMergedWhereString : " + sb.toString());
         return sb.toString();
     }
 
@@ -206,7 +201,7 @@ public class BillListFragment extends Fragment {
         if (!isFirstShow) {
             billItemList.clear();
             Log.d(TAG, " reloadData");
-            billItemList.addAll(LitePal.where(getMergedQueryString()).order("timeMills desc").find(BillItem.class));
+            billItemList.addAll(getInitList());
             billAdapter.notifyDataSetChanged();
             refreshAmountOfMoney();
         }

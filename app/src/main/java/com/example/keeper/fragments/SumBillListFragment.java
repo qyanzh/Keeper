@@ -12,7 +12,10 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
+import com.example.keeper.BillItem;
 import com.example.keeper.R;
+
+import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -26,7 +29,7 @@ public class SumBillListFragment extends BillListFragment {
     Spinner spinnerYear;
     Spinner spinnerMonth;
     Spinner spinnerDay;
-    public static final String HOME_FRAGMENT_TAG = "HomeFragment";
+    public static final String RECENT_FRAGMENT_TAG = "RecentFragment";
     public static final String YEARLY_FRAGMENT_TAG = "YearlyFragment";
     public static final String MONTHLY_FRAGMENT_TAG = "MonthlyFragment";
     public static final String DAILY_FRAGMENT_TAG = "DailyFragment";
@@ -38,9 +41,14 @@ public class SumBillListFragment extends BillListFragment {
 
     public static SumBillListFragment newInstance(String TAG, Bundle bundle) {
         SumBillListFragment fragment = new SumBillListFragment();
-        fragment.TAG = TAG;
+        bundle.putString("TAG",TAG);
         fragment.setArguments(bundle);
         return fragment;
+    }
+
+    @Override
+    List<BillItem> getInitList() {
+        return LitePal.where(getMergedWhereString()).order("timeMills desc").find(BillItem.class);
     }
 
     @Nullable

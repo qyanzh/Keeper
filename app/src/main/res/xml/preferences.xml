@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:defaultValue="20"
+        android:key="pref_recent_amount"
+        android:summary="@string/availableNextTimeLaunch"
+        android:numeric="integer"
+        android:inputType="number"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/recentDisplayAmount" />
     <PreferenceCategory android:title="@string/developerMode">
         <SwitchPreference
-            android:icon="@drawable/set_ic_build_white_24dp"
             android:defaultValue="false"
             android:key="pref_dev_mode"
             android:summary="@string/summary_dev_mode"

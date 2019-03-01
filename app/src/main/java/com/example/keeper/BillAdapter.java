@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.keeper.activities.EditActivity;
-import com.example.keeper.fragments.HomeFragment;
+import com.example.keeper.fragments.RecentFragment;
 import com.example.keeper.mytools.MyDateFormat;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
 
@@ -113,6 +113,6 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.ViewHolder> im
         intent.putExtra("action", "edit");
         intent.putExtra("id", id);
         intent.putExtra("prePosition", position);
-        mFragment.startActivityForResult(intent, HomeFragment.REQUEST_EDIT_BILL);
+        mFragment.startActivityForResult(intent, RecentFragment.REQUEST_EDIT_BILL);
     }
 }

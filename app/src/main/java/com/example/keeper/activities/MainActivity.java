@@ -20,7 +20,7 @@ import android.view.MenuItem;
 import com.example.keeper.BillItem;
 import com.example.keeper.R;
 import com.example.keeper.fragments.BillListFragment;
-import com.example.keeper.fragments.HomeFragment;
+import com.example.keeper.fragments.RecentFragment;
 import com.example.keeper.fragments.SumBillListFragment;
 import com.example.keeper.mytools.MyBundleHelper;
 import com.example.keeper.mytools.MyDoubleClickListener;
@@ -33,7 +33,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import static com.example.keeper.fragments.SumBillListFragment.DAILY_FRAGMENT_TAG;
-import static com.example.keeper.fragments.SumBillListFragment.HOME_FRAGMENT_TAG;
+import static com.example.keeper.fragments.SumBillListFragment.RECENT_FRAGMENT_TAG;
 import static com.example.keeper.fragments.SumBillListFragment.MONTHLY_FRAGMENT_TAG;
 import static com.example.keeper.fragments.SumBillListFragment.YEARLY_FRAGMENT_TAG;
 import static java.util.Calendar.DAY_OF_MONTH;
@@ -41,7 +41,7 @@ import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
 
-public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "MainActivity";
     private static final String PREF_DEV_MODE = "pref_dev_mode";
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     NavigationView mNavigation;
     private DrawerLayout mDrawerLayout;
     private BillListFragment currentFragment;
-    private HomeFragment homeFragment;
+    private RecentFragment recentFragment;
     SumBillListFragment yearlyFragment;
     SumBillListFragment monthlyFragment;
     SumBillListFragment dailyFragment;
@@ -63,14 +63,14 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: ");
         setTheme(R.style.TransparentStatusBar);
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         LitePal.initialize(this);
         welcome();
         if (savedInstanceState != null) {
-            homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag(HOME_FRAGMENT_TAG);
+            recentFragment = (RecentFragment) getSupportFragmentManager().findFragmentByTag(RECENT_FRAGMENT_TAG);
             yearlyFragment = (SumBillListFragment) getSupportFragmentManager().findFragmentByTag(YEARLY_FRAGMENT_TAG);
             monthlyFragment = (SumBillListFragment) getSupportFragmentManager().findFragmentByTag(MONTHLY_FRAGMENT_TAG);
             dailyFragment = (SumBillListFragment) getSupportFragmentManager().findFragmentByTag(DAILY_FRAGMENT_TAG);
@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         super.onStart();
         setFabClick();
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -155,8 +156,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     public boolean onNavigationItemSelected(MenuItem i) {
         switch (i.getItemId()) {
             case R.id.nav_menu_home:
-                showFragment(homeFragment);
-                toolbar.setTitle(R.string.app_name);
+                showFragment(recentFragment);
+                toolbar.setTitle(R.string.recent);
                 break;
             case R.id.nav_menu_today:
                 showFragment(dailyFragment);
@@ -195,10 +196,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             dailyFragment = SumBillListFragment.newInstance(DAILY_FRAGMENT_TAG, bundle);
         }
 
-        if (homeFragment == null) {
-            homeFragment = HomeFragment.newInstance(HOME_FRAGMENT_TAG);
+        if (recentFragment == null) {
+            recentFragment = RecentFragment.newInstance(RECENT_FRAGMENT_TAG);
         }
-        showFragment(homeFragment);
+        showFragment(recentFragment);
     }
 
 
@@ -248,12 +249,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(PREF_DEV_MODE)) {
-            setFabClick();
-        }
-    }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -283,4 +278,5 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 });
         builder.create().show();
     }
+
 }
