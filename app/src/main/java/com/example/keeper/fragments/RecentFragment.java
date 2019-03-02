@@ -12,7 +12,10 @@ import com.example.keeper.BillItem;
 
 import org.litepal.LitePal;
 
+import java.util.Calendar;
 import java.util.List;
+
+import static java.util.Calendar.*;
 
 
 public class RecentFragment extends BillListFragment {
@@ -24,9 +27,28 @@ public class RecentFragment extends BillListFragment {
     }
 
     @Override
-    List<BillItem> getInitList() {
-        String limit = PreferenceManager.getDefaultSharedPreferences(getContext()).getString("pref_recent_amount","20");
-        return LitePal.order("timeMills desc").limit(Integer.valueOf(limit)).find(BillItem.class);
+    List<BillItem> getList() {
+        return LitePal.order("timeMills desc").where(getMergedWhereString()).find(BillItem.class);
+    }
+
+    @Override
+    String getMergedWhereString() {
+        String limit = PreferenceManager.getDefaultSharedPreferences(getContext()).getString("pref_recent_amount","7");
+        int offset = Integer.parseInt(limit);
+        Calendar c = Calendar.getInstance();
+        String now = String.valueOf(c.getTimeInMillis());
+        c.set(c.get(YEAR),c.get(MONTH),c.get(DAY_OF_MONTH)-offset,0,0);
+        String before = String.valueOf(c.getTimeInMillis());
+        return "timeMills >= " + before + " and timeMills <= " + now;
+    }
+
+    @Override
+    boolean isMatchCondition(long id) {
+        String limit = PreferenceManager.getDefaultSharedPreferences(getContext()).getString("pref_recent_amount","7");
+        int offset = Integer.parseInt(limit);
+        Calendar c = Calendar.getInstance();
+        c.set(c.get(YEAR),c.get(MONTH),c.get(DAY_OF_MONTH)-offset,0,0);
+        return LitePal.find(BillItem.class,id).getTimeMills() >= c.getTimeInMillis();
     }
 
     @Nullable

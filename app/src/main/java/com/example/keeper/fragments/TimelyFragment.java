@@ -25,7 +25,7 @@ import static java.util.Calendar.DAY_OF_MONTH;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
-public class SumBillListFragment extends BillListFragment {
+public class TimelyFragment extends BillListFragment {
     Spinner spinnerYear;
     Spinner spinnerMonth;
     Spinner spinnerDay;
@@ -39,15 +39,15 @@ public class SumBillListFragment extends BillListFragment {
             "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
     List<Spinner> spinnerList = new ArrayList<>();
 
-    public static SumBillListFragment newInstance(String TAG, Bundle bundle) {
-        SumBillListFragment fragment = new SumBillListFragment();
+    public static TimelyFragment newInstance(String TAG, Bundle bundle) {
+        TimelyFragment fragment = new TimelyFragment();
         bundle.putString("TAG",TAG);
         fragment.setArguments(bundle);
         return fragment;
     }
 
     @Override
-    List<BillItem> getInitList() {
+    List<BillItem> getList() {
         return LitePal.where(getMergedWhereString()).order("timeMills desc").find(BillItem.class);
     }
 
@@ -68,7 +68,7 @@ public class SumBillListFragment extends BillListFragment {
             case 1:
                 setSpinner(spinnerYear, years, 0);
             default:
-                reloadData();
+                Log.d(TAG, "onCreateView: ");
                 Log.d(TAG, "setSpinner " + queryArguments.length);
         }
         return view;
@@ -89,20 +89,22 @@ public class SumBillListFragment extends BillListFragment {
         switch (pos) {
             case 0:
                 int year = c.get(YEAR);
-                spinnerYear.setSelection(year - 2018);
+                spinnerYear.setSelection(year - 2018,false);
                 break;
             case 1:
                 int month = c.get(MONTH) + 1;
-                spinnerMonth.setSelection(month - 1);
+                spinnerMonth.setSelection(month - 1,false);
                 break;
             case 2:
                 int day = c.get(DAY_OF_MONTH);
-                spinnerDay.setSelection(day - 1);
+                spinnerDay.setSelection(day - 1,false);
+                break;
         }
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 queryArguments[pos] = (String) parent.getItemAtPosition(position);
+                Log.d(TAG, "onItemSelected: "+pos);
                 reloadData();
             }
 

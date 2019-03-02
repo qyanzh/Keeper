@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">记账</string>
-    <string name="title_home">首页</string>
     <string name="title_status">Status</string>
 
     <string name="welcome">欢迎!</string>
@@ -50,7 +49,7 @@
     <string name="settings">设置</string>
     <string name="west2online">West2Online</string>
     <string name="emptyListIndicator">空列表图示</string>
-    <string name="recentDisplayAmount">开启应用时最近页显示条数</string>
+    <string name="recentDisplayAmount">开启应用时最近页显示的天数</string>
     <string name="availableNextTimeLaunch">下次启动生效</string>
     <string name="recent">最近</string>
 

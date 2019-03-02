@@ -14,8 +14,8 @@ import static java.util.Calendar.YEAR;
 
 public class MyDateFormat {
 
-    private static SimpleDateFormat sameYearFormatter = new SimpleDateFormat("MM月dd日", Locale.CHINA);
-    private static SimpleDateFormat normalDateFormatter = new SimpleDateFormat("yyyy年MM月dd日",Locale.CHINA);
+    private static SimpleDateFormat sameYearFormatter = new SimpleDateFormat("M月d日 EE", Locale.CHINA);
+    private static SimpleDateFormat normalDateFormatter = new SimpleDateFormat("yyyy年M月d日",Locale.CHINA);
     public static SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm",Locale.CHINA);
 
     public static String format(long timeMills, boolean changeRecent) {

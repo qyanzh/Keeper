@@ -31,6 +31,7 @@ import org.litepal.LitePal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -221,22 +222,16 @@ public class EditActivity extends AppCompatActivity
     private void initTimeBox() {
         editButtonDate = findViewById(R.id.editButton_date);
         editButtonTime = findViewById(R.id.editButton_time);
+        editButtonDate.setText(MyDateFormat.format(billItem.getTimeMills(), false));
+        editButtonTime.setText(MyDateFormat.timeFormatter.format(billItem.getTimeMills()));
         editButtonDate.setOnClickListener(v -> {
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("billItem", billItem);
-            DatePickerFragment datePickerFragment = new DatePickerFragment();
-            datePickerFragment.setArguments(bundle);
+            DatePickerFragment datePickerFragment = DatePickerFragment.getInstance(billItem);
             datePickerFragment.show(getSupportFragmentManager(), "datePicker");
         });
         editButtonTime.setOnClickListener(v -> {
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("billItem", billItem);
-            TimePickerFragment timePickerFragment = new TimePickerFragment();
-            timePickerFragment.setArguments(bundle);
+            TimePickerFragment timePickerFragment = TimePickerFragment.getInstance(billItem);
             timePickerFragment.show(getSupportFragmentManager(), "timePicker");
         });
-        editButtonDate.setText(MyDateFormat.format(billItem.getTimeMills(), false));
-        editButtonTime.setText(MyDateFormat.timeFormatter.format(billItem.getTimeMills()));
     }
 
     @Override

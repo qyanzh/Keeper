@@ -16,12 +16,13 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AbsSpinner;
 
 import com.example.keeper.BillItem;
 import com.example.keeper.R;
 import com.example.keeper.fragments.BillListFragment;
 import com.example.keeper.fragments.RecentFragment;
-import com.example.keeper.fragments.SumBillListFragment;
+import com.example.keeper.fragments.TimelyFragment;
 import com.example.keeper.mytools.MyBundleHelper;
 import com.example.keeper.mytools.MyDoubleClickListener;
 
@@ -32,10 +33,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import static com.example.keeper.fragments.SumBillListFragment.DAILY_FRAGMENT_TAG;
-import static com.example.keeper.fragments.SumBillListFragment.RECENT_FRAGMENT_TAG;
-import static com.example.keeper.fragments.SumBillListFragment.MONTHLY_FRAGMENT_TAG;
-import static com.example.keeper.fragments.SumBillListFragment.YEARLY_FRAGMENT_TAG;
+import static com.example.keeper.fragments.TimelyFragment.DAILY_FRAGMENT_TAG;
+import static com.example.keeper.fragments.TimelyFragment.RECENT_FRAGMENT_TAG;
+import static com.example.keeper.fragments.TimelyFragment.MONTHLY_FRAGMENT_TAG;
+import static com.example.keeper.fragments.TimelyFragment.YEARLY_FRAGMENT_TAG;
 import static java.util.Calendar.DAY_OF_MONTH;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
@@ -52,9 +53,9 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private BillListFragment currentFragment;
     private RecentFragment recentFragment;
-    SumBillListFragment yearlyFragment;
-    SumBillListFragment monthlyFragment;
-    SumBillListFragment dailyFragment;
+    TimelyFragment yearlyFragment;
+    TimelyFragment monthlyFragment;
+    TimelyFragment dailyFragment;
     List<BillListFragment> mFragments = new ArrayList<>();
     public FloatingActionButton fab;
     SharedPreferences sharedPreferences;
@@ -71,9 +72,9 @@ public class MainActivity extends AppCompatActivity {
         welcome();
         if (savedInstanceState != null) {
             recentFragment = (RecentFragment) getSupportFragmentManager().findFragmentByTag(RECENT_FRAGMENT_TAG);
-            yearlyFragment = (SumBillListFragment) getSupportFragmentManager().findFragmentByTag(YEARLY_FRAGMENT_TAG);
-            monthlyFragment = (SumBillListFragment) getSupportFragmentManager().findFragmentByTag(MONTHLY_FRAGMENT_TAG);
-            dailyFragment = (SumBillListFragment) getSupportFragmentManager().findFragmentByTag(DAILY_FRAGMENT_TAG);
+            yearlyFragment = (TimelyFragment) getSupportFragmentManager().findFragmentByTag(YEARLY_FRAGMENT_TAG);
+            monthlyFragment = (TimelyFragment) getSupportFragmentManager().findFragmentByTag(MONTHLY_FRAGMENT_TAG);
+            dailyFragment = (TimelyFragment) getSupportFragmentManager().findFragmentByTag(DAILY_FRAGMENT_TAG);
         }
         initView();
         initFragment();
@@ -184,22 +185,23 @@ public class MainActivity extends AppCompatActivity {
         Calendar c = Calendar.getInstance();
         if (yearlyFragment == null) {
             Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.YEAR_MODE, c.get(YEAR));
-            yearlyFragment = SumBillListFragment.newInstance(YEARLY_FRAGMENT_TAG, bundle);
+            yearlyFragment = TimelyFragment.newInstance(YEARLY_FRAGMENT_TAG, bundle);
         }
 
         if (monthlyFragment == null) {
             Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.MONTH_MODE, c.get(YEAR), c.get(MONTH) + 1);
-            monthlyFragment = SumBillListFragment.newInstance(MONTHLY_FRAGMENT_TAG, bundle);
+            monthlyFragment = TimelyFragment.newInstance(MONTHLY_FRAGMENT_TAG, bundle);
         }
         if (dailyFragment == null) {
             Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.DAY_MODE, c.get(YEAR), c.get(MONTH) + 1, c.get(DAY_OF_MONTH));
-            dailyFragment = SumBillListFragment.newInstance(DAILY_FRAGMENT_TAG, bundle);
+            dailyFragment = TimelyFragment.newInstance(DAILY_FRAGMENT_TAG, bundle);
         }
 
         if (recentFragment == null) {
             recentFragment = RecentFragment.newInstance(RECENT_FRAGMENT_TAG);
         }
         showFragment(recentFragment);
+        getSupportActionBar().setTitle(R.string.recent);
     }
 
 
@@ -215,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
             }
             ft.show(selectedFragment);
             ft.commitNow();
+            Log.d(TAG, "showFragment: selected");
             selectedFragment.reloadData();
             currentFragment = selectedFragment;
         }

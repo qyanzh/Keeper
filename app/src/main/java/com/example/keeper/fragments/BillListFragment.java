@@ -56,20 +56,19 @@ public abstract class BillListFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mActivity = (MainActivity) getActivity();
         Bundle bundle = getArguments();
         if (bundle != null) {
             queryConditions = bundle.getStringArray("queryConditions");
             queryArguments = bundle.getStringArray("queryArguments");
             TAG = bundle.getString("TAG");
         }
-        billItemList = getInitList();
+        billItemList = getList();
         billAdapter = new BillAdapter(this, billItemList);
         setRetainInstance(true);
         Log.d(TAG, "onCreate: ");
     }
 
-    abstract List<BillItem> getInitList();
+    abstract List<BillItem> getList();
 
     @Nullable
     @Override
@@ -107,7 +106,7 @@ public abstract class BillListFragment extends Fragment {
         return sb.toString();
     }
 
-    private boolean isMatchCondition(long id) {
+    boolean isMatchCondition(long id) {
         if (queryArguments == null) {
             return true;
         }
@@ -201,7 +200,7 @@ public abstract class BillListFragment extends Fragment {
         if (!isFirstShow) {
             billItemList.clear();
             Log.d(TAG, " reloadData");
-            billItemList.addAll(getInitList());
+            billItemList.addAll(getList());
             billAdapter.notifyDataSetChanged();
             refreshAmountOfMoney();
         }
@@ -225,7 +224,6 @@ public abstract class BillListFragment extends Fragment {
                 Toast.makeText(getContext(), R.string.saved, Toast.LENGTH_SHORT).show();
                 break;
         }
-        mActivity.fab.show();
     }
 
     public void refreshAmountOfMoney() {

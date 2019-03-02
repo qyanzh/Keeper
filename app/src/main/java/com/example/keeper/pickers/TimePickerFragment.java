@@ -10,6 +10,15 @@ import com.example.keeper.BillItem;
 import org.jetbrains.annotations.NotNull;
 
 public class TimePickerFragment extends DialogFragment {
+
+    public static TimePickerFragment getInstance(BillItem billItem) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("billItem",billItem);
+        TimePickerFragment tp = new TimePickerFragment();
+        tp.setArguments(bundle);
+        return tp;
+    }
+
     @NotNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

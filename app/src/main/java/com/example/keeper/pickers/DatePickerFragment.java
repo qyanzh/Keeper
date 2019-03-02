@@ -9,7 +9,18 @@ import com.example.keeper.BillItem;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Calendar;
+import java.util.Date;
+
 public class DatePickerFragment extends DialogFragment {
+
+    public static DatePickerFragment getInstance(BillItem billItem) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("billItem",billItem);
+        DatePickerFragment dp = new DatePickerFragment();
+        dp.setArguments(bundle);
+        return dp;
+    }
 
     @NotNull
     @Override
@@ -22,6 +33,7 @@ public class DatePickerFragment extends DialogFragment {
                 billItem = nullable;
             }
         }
+
         if (getActivity() != null) {
             return new DatePickerDialog(getActivity(), (DatePickerDialog.OnDateSetListener) getActivity(), billItem.getYear(), billItem.getMonth() - 1, billItem.getDay());
         } else {
