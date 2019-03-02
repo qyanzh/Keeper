@@ -52,5 +52,7 @@
     <string name="recentDisplayAmount">开启应用时最近页显示的天数</string>
     <string name="availableNextTimeLaunch">下次启动生效</string>
     <string name="recent">最近</string>
+    <string name="title_activity_test">TestActivity</string>
+    <string name="home">首页</string>
 
 </resources>

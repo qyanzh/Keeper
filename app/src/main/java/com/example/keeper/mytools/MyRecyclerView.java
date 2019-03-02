@@ -11,8 +11,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class MyRecyclerView extends RecyclerView {
     @Nullable View emptyView;
-    public StickyRecyclerHeadersDecoration headersDecoration;
-
     public MyRecyclerView(Context context) { super(context); }
 
     public MyRecyclerView(Context context, AttributeSet attrs) { super(context, attrs); }
@@ -29,9 +27,21 @@ public class MyRecyclerView extends RecyclerView {
         }
     }
 
+    OnItemChangedObserver o;
+
+    public interface OnItemChangedObserver{
+        default void onItemChanged(){}
+    }
+
+    public void setOnItemChangedObserver(OnItemChangedObserver o){
+        this.o = o;
+        o.onItemChanged();
+    }
+
     final @NotNull AdapterDataObserver observer = new AdapterDataObserver() {
         @Override public void onChanged() {
             super.onChanged();
+            o.onItemChanged();
             checkIfEmpty();
             invalidateItemDecorations();
         }
@@ -39,6 +49,7 @@ public class MyRecyclerView extends RecyclerView {
         @Override
         public void onItemRangeInserted(int positionStart, int itemCount) {
             super.onItemRangeInserted(positionStart, itemCount);
+            o.onItemChanged();
             checkIfEmpty();
             invalidateItemDecorations();
         }
@@ -46,6 +57,7 @@ public class MyRecyclerView extends RecyclerView {
         @Override
         public void onItemRangeRemoved(int positionStart, int itemCount) {
             super.onItemRangeRemoved(positionStart, itemCount);
+            o.onItemChanged();
             checkIfEmpty();
             invalidateItemDecorations();
         }

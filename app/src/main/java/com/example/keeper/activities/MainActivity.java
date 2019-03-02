@@ -16,7 +16,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AbsSpinner;
 
 import com.example.keeper.BillItem;
 import com.example.keeper.R;
@@ -33,8 +32,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import static com.example.keeper.fragments.RecentFragment.RECENT_FRAGMENT_TAG;
 import static com.example.keeper.fragments.TimelyFragment.DAILY_FRAGMENT_TAG;
-import static com.example.keeper.fragments.TimelyFragment.RECENT_FRAGMENT_TAG;
 import static com.example.keeper.fragments.TimelyFragment.MONTHLY_FRAGMENT_TAG;
 import static com.example.keeper.fragments.TimelyFragment.YEARLY_FRAGMENT_TAG;
 import static java.util.Calendar.DAY_OF_MONTH;
@@ -158,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
         switch (i.getItemId()) {
             case R.id.nav_menu_home:
                 showFragment(recentFragment);
-                toolbar.setTitle(R.string.recent);
+                toolbar.setTitle(R.string.home);
                 break;
             case R.id.nav_menu_today:
                 showFragment(dailyFragment);
@@ -184,16 +183,16 @@ public class MainActivity extends AppCompatActivity {
     private void initFragment() {
         Calendar c = Calendar.getInstance();
         if (yearlyFragment == null) {
-            Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.YEAR_MODE, c.get(YEAR));
+            Bundle bundle = MyBundleHelper.getDateQueryBundle(c.get(YEAR));
             yearlyFragment = TimelyFragment.newInstance(YEARLY_FRAGMENT_TAG, bundle);
         }
 
         if (monthlyFragment == null) {
-            Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.MONTH_MODE, c.get(YEAR), c.get(MONTH) + 1);
+            Bundle bundle = MyBundleHelper.getDateQueryBundle(c.get(YEAR), c.get(MONTH) + 1);
             monthlyFragment = TimelyFragment.newInstance(MONTHLY_FRAGMENT_TAG, bundle);
         }
         if (dailyFragment == null) {
-            Bundle bundle = MyBundleHelper.getDateQueryBundle(MyBundleHelper.DAY_MODE, c.get(YEAR), c.get(MONTH) + 1, c.get(DAY_OF_MONTH));
+            Bundle bundle = MyBundleHelper.getDateQueryBundle(c.get(YEAR), c.get(MONTH) + 1, c.get(DAY_OF_MONTH));
             dailyFragment = TimelyFragment.newInstance(DAILY_FRAGMENT_TAG, bundle);
         }
 
@@ -201,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
             recentFragment = RecentFragment.newInstance(RECENT_FRAGMENT_TAG);
         }
         showFragment(recentFragment);
-        getSupportActionBar().setTitle(R.string.recent);
+        getSupportActionBar().setTitle(R.string.home);
     }
 
 
@@ -273,7 +272,6 @@ public class MainActivity extends AppCompatActivity {
                     mFragments.forEach(mFragment -> {
                         mFragment.billItemList.clear();
                         mFragment.billAdapter.notifyDataSetChanged();
-                        mFragment.refreshAmountOfMoney();
                     });
                     fab.show();
                 })
