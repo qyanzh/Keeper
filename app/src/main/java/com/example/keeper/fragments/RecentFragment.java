@@ -69,8 +69,14 @@ public class RecentFragment extends BillListFragment {
         String limit = PreferenceManager.getDefaultSharedPreferences(getContext()).getString("pref_recent_amount", "7");
         int offset = Integer.parseInt(limit);
         Calendar c = Calendar.getInstance();
+        c.set(HOUR,0);
+        c.set(MINUTE,0);
+        c.set(DAY_OF_MONTH,c.get(DAY_OF_MONTH)+1);
+        long now = c.getTimeInMillis();
         c.set(c.get(YEAR), c.get(MONTH), c.get(DAY_OF_MONTH) - offset, 0, 0);
-        return LitePal.find(BillItem.class, id).getTimeMills() >= c.getTimeInMillis();
+        long before = c.getTimeInMillis();
+        BillItem billItem = LitePal.find(BillItem.class, id);
+        return billItem.getTimeMills() >= before && billItem.getTimeMills() < now;
     }
 
 }

@@ -13,7 +13,7 @@ public class TimePickerFragment extends DialogFragment {
 
     public static TimePickerFragment getInstance(BillItem billItem) {
         Bundle bundle = new Bundle();
-        bundle.putSerializable("billItem",billItem);
+        bundle.putParcelable("billItem",billItem);
         TimePickerFragment tp = new TimePickerFragment();
         tp.setArguments(bundle);
         return tp;
@@ -25,7 +25,7 @@ public class TimePickerFragment extends DialogFragment {
         Bundle bundle = getArguments();
         BillItem billItem = new BillItem();
         if (bundle != null) {
-            BillItem nullable = (BillItem) bundle.getSerializable("billItem");
+            BillItem nullable = (BillItem) bundle.getParcelable("billItem");
             if (nullable != null) {
                 billItem = nullable;
             }

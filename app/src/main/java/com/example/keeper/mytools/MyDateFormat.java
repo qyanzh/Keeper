@@ -46,7 +46,7 @@ public class MyDateFormat {
         int month = c.get(MONTH);
         int day = c.get(DAY_OF_MONTH);
         String ret;
-        if (year == curYear) {
+       // if (year == curYear) {
             if (month == curMonth && changeRecent) {
                 if (day == curDay) {
                     ret = "今天";
@@ -58,9 +58,9 @@ public class MyDateFormat {
             } else {
                 ret = sameYearFormatter.format(c.getTime());
             }
-        } else {
-            ret = normalDateFormatter.format(c.getTime());
-        }
+//        } else {
+//            ret = normalDateFormatter.format(c.getTime());
+//        }
         return ret;
     }
 

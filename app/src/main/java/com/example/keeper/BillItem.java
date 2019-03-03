@@ -1,9 +1,11 @@
 
 package com.example.keeper;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.litepal.crud.LitePalSupport;
 
-import java.io.Serializable;
 import java.util.Calendar;
 
 import static java.util.Calendar.DAY_OF_MONTH;
@@ -12,7 +14,7 @@ import static java.util.Calendar.MINUTE;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
-public class BillItem extends LitePalSupport implements Cloneable, Serializable, Comparable<BillItem> {
+public class BillItem extends LitePalSupport implements Cloneable, Parcelable, Comparable<BillItem> {
 
     public static final int INCOME = 0;
 
@@ -44,6 +46,32 @@ public class BillItem extends LitePalSupport implements Cloneable, Serializable,
         this.category = "消费";
         this.setTime(Calendar.getInstance().getTimeInMillis());
     }
+
+    protected BillItem(Parcel in) {
+        id = in.readLong();
+        price = in.readFloat();
+        type = in.readInt();
+        remark = in.readString();
+        category = in.readString();
+        year = in.readInt();
+        month = in.readInt();
+        day = in.readInt();
+        hour = in.readInt();
+        minute = in.readInt();
+        timeMills = in.readLong();
+    }
+
+    public static final Creator<BillItem> CREATOR = new Creator<BillItem>() {
+        @Override
+        public BillItem createFromParcel(Parcel in) {
+            return new BillItem(in);
+        }
+
+        @Override
+        public BillItem[] newArray(int size) {
+            return new BillItem[size];
+        }
+    };
 
     @Override
     public Object clone() {
@@ -167,4 +195,23 @@ public class BillItem extends LitePalSupport implements Cloneable, Serializable,
         this.timeMills = timeMills;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeFloat(price);
+        dest.writeInt(type);
+        dest.writeString(remark);
+        dest.writeString(category);
+        dest.writeInt(year);
+        dest.writeInt(month);
+        dest.writeInt(day);
+        dest.writeInt(hour);
+        dest.writeInt(minute);
+        dest.writeLong(timeMills);
+    }
 }

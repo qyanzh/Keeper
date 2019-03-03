@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +45,7 @@ public abstract class BillListFragment extends Fragment implements MyRecyclerVie
     public List<BillItem> billItemList;
     public BillAdapter billAdapter;
     public MyRecyclerView billRecyclerView;
+    StickyRecyclerHeadersDecoration headersDecoration;
     TextView textTotalIncome;
     TextView textTotalPayout;
     ConstraintLayout barAmountDisplay;
@@ -81,12 +83,12 @@ public abstract class BillListFragment extends Fragment implements MyRecyclerVie
         textTotalPayout = view.findViewById(R.id.bar_text_payout);
         billRecyclerView = view.findViewById(R.id.bill_recyclerView);
         billRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 1));
-        billRecyclerView.setOnItemChangedObserver(this);
         billRecyclerView.setAdapter(billAdapter);
-        billRecyclerView.setHasFixedSize(true);
-        final StickyRecyclerHeadersDecoration headersDecoration = new StickyRecyclerHeadersDecoration(billAdapter);
-        billRecyclerView.addItemDecoration(headersDecoration);
         billRecyclerView.setEmptyView(view.findViewById(R.id.empty_view));
+        headersDecoration = new StickyRecyclerHeadersDecoration(billAdapter);
+        billRecyclerView.addItemDecoration(headersDecoration);
+        billRecyclerView.setHasFixedSize(true);
+        billRecyclerView.setOnItemChangedObserver(this);
         return view;
     }
 
@@ -136,21 +138,9 @@ public abstract class BillListFragment extends Fragment implements MyRecyclerVie
     }
 
     void onBillEdited(int prePosition, long id) {
-        BillItem billItem = LitePal.find(BillItem.class, id);
-        if (isMatchCondition(id)) {
-            int newPosition = Collections.binarySearch(billItemList, billItem);
-            if (newPosition < 0) newPosition = -newPosition - 1;
-            if (newPosition == prePosition) {
-                billItemList.set(prePosition, billItem);
-                billAdapter.notifyItemChanged(prePosition);
-            } else {
-                billAdapter.notifyItemRemoved(prePosition);
-                billAdapter.notifyItemInserted(newPosition);
-                billRecyclerView.scrollToPosition(newPosition);
-            }
-        } else {
-            billAdapter.notifyItemRemoved(prePosition);
-        }
+        onBillDeleted(prePosition);
+        if (isMatchCondition(id)) onBillItemAdded(id);
+
     }
 
     public void reloadData() {
@@ -242,6 +232,8 @@ public abstract class BillListFragment extends Fragment implements MyRecyclerVie
 
     @Override
     public void onItemChanged() {
+        headersDecoration.invalidateHeaders();
         refreshAmountOfMoney();
+
     }
 }

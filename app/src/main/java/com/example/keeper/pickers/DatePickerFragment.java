@@ -16,7 +16,7 @@ public class DatePickerFragment extends DialogFragment {
 
     public static DatePickerFragment getInstance(BillItem billItem) {
         Bundle bundle = new Bundle();
-        bundle.putSerializable("billItem",billItem);
+        bundle.putParcelable("billItem",billItem);
         DatePickerFragment dp = new DatePickerFragment();
         dp.setArguments(bundle);
         return dp;
@@ -28,7 +28,7 @@ public class DatePickerFragment extends DialogFragment {
         Bundle bundle = getArguments();
         BillItem billItem = new BillItem();
         if (bundle != null) {
-            BillItem nullable = (BillItem) bundle.getSerializable("billItem");
+            BillItem nullable = (BillItem) bundle.getParcelable("billItem");
             if (nullable != null) {
                 billItem = nullable;
             }
