@@ -183,12 +183,6 @@ public abstract class BillListFragment extends Fragment implements MyRecyclerVie
     }
 
     public void refreshAmountOfMoney() {
-        if(billItemList.isEmpty()) {
-            barAmountDisplay.setVisibility(View.GONE);
-            return;
-        } else {
-            barAmountDisplay.setVisibility(View.VISIBLE);
-        }
         float payout = 0;
         float income = 0;
         for (BillItem billItem : billItemList) {
