@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
@@ -6,15 +6,21 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <!--<item name="android:navigationBarColor">@android:color/white</item>-->
+        <!--<item name="android:windowLightNavigationBar">true</item>-->
 
     </style>
 
     <style name="TransparentStatusBar" parent="AppTheme">
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <!--<item name="android:navigationBarDividerColor">@color/gray</item>-->
+        <!--<item name="android:windowTranslucentStatus">true</item>-->
     </style>
 
     <style name="AppTheme.Launcher">
         <item name="android:windowBackground">@drawable/app_bg_launcher</item>
+        <item name="android:navigationBarColor">@color/colorPrimary</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -25,6 +31,10 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="BottomDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
 
 
 </resources>

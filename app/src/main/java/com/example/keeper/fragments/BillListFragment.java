@@ -5,15 +5,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
-import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +36,7 @@ import static android.app.Activity.RESULT_OK;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
-public abstract class BillListFragment extends Fragment implements MyRecyclerView.OnItemChangedObserver{
+public abstract class BillListFragment extends Fragment implements MyRecyclerView.OnItemChangedObserver {
 
     private static final DecimalFormat df = new DecimalFormat("¥###,###,##0.00");
     public View view;
@@ -80,24 +78,26 @@ public abstract class BillListFragment extends Fragment implements MyRecyclerVie
         view = inflater.inflate(R.layout.fragment_billlist, container, false);
         barAmountDisplay = view.findViewById(R.id.bar_total_amount);
         barAmountDisplay.setVisibility(View.VISIBLE);
-        barAmountDisplay.setOnClickListener(v-> {
-            if(!billItemList.isEmpty()) {
+        barAmountDisplay.setOnClickListener(v -> {
+            if (!billItemList.isEmpty()) {
                 BottomDialogFragment.newInstance(billItemList).show(getFragmentManager(), "tag");
             }
         });
         textTotalIncome = view.findViewById(R.id.bar_text_income);
         textTotalPayout = view.findViewById(R.id.bar_text_payout);
         billRecyclerView = view.findViewById(R.id.bill_recyclerView);
-        billRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 1));
+        billRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         billRecyclerView.setAdapter(billAdapter);
         billRecyclerView.setEmptyView(view.findViewById(R.id.empty_view));
         headersDecoration = new StickyRecyclerHeadersDecoration(billAdapter);
         billRecyclerView.addItemDecoration(headersDecoration);
         billRecyclerView.setHasFixedSize(true);
         billRecyclerView.setOnItemChangedObserver(this);
+        DividerItemDecoration divider = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        divider.setDrawable(getResources().getDrawable(R.drawable.rec_divider_line, null));
+        billRecyclerView.addItemDecoration(divider);
         return view;
     }
-
 
 
     abstract boolean isMatchCondition(long id);

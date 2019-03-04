@@ -23,5 +23,18 @@
         <item>其它</item>
     </string-array>
 
+    <!--MaterialColors-->
+    <string-array name="colors">
+        <item>#EB1D64</item>
+        <item>#03A8F5</item>
+        <item>#00BCD4</item>
+        <item>#9D26B0</item>
+        <item>#F64238</item>
+        <item>#CEDB3A</item>
+        <item>#FFEB3D</item>
+        <item>#02968A</item>
+        <item>#8CC34A</item>
+        <item>#3F50B6</item>
+    </string-array>
 
 </resources>

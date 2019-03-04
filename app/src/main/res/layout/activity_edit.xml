@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -48,21 +49,22 @@
         app:layout_constraintTop_toBottomOf="@+id/title_amount" />
 
     <EditText
-        android:maxLength="8"
         android:id="@+id/editText_amount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
+        android:autofillHints=""
         android:ems="10"
         android:hint="@string/zero"
         android:inputType="numberDecimal"
+        android:maxLength="8"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         app:layout_constrainedHeight="false"
         app:layout_constraintBottom_toBottomOf="@+id/money_signal"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toEndOf="@+id/money_signal"
         app:layout_constraintTop_toTopOf="@+id/money_signal"
-        android:autofillHints="" tools:targetApi="o" />
+        tools:targetApi="o" />
 
     <TextView
         android:id="@+id/title_type"
@@ -88,17 +90,17 @@
 
         <RadioButton
             android:id="@+id/radioButton_payout"
-            android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="@string/payout"
             android:textSize="18sp" />
 
         <RadioButton
             android:id="@+id/radioButton_income"
-            android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="@string/income"
             android:textSize="18sp" />
     </RadioGroup>
@@ -122,11 +124,12 @@
         android:layout_marginEnd="8dp"
         android:ems="10"
         android:hint="@string/addRemarks"
+        android:importantForAutofill="no"
         android:inputType="textShortMessage"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title_remark"
-        android:importantForAutofill="no" tools:targetApi="o" />
+        tools:targetApi="o" />
 
 
     <TextView
@@ -213,7 +216,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.50121653" />
-
 
 
 </android.support.constraint.ConstraintLayout>

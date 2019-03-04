@@ -1,5 +1,6 @@
 package com.example.keeper.fragments;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,18 +11,21 @@ import android.view.ViewGroup;
 
 import com.example.keeper.BillItem;
 import com.example.keeper.R;
+import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.formatter.PercentFormatter;
-import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.github.mikephil.charting.components.Legend.LegendOrientation.VERTICAL;
 
 public class ChartFragment extends Fragment {
     public static ChartFragment newInstance(Bundle dataBundle, int type) {
@@ -31,18 +35,18 @@ public class ChartFragment extends Fragment {
         return fragment;
     }
 
-    PieData pieData;
-
+    @Nullable
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_chart, container, false);
         List<BillItem> list = getArguments().getParcelableArrayList("billList");
         int type = getArguments().getInt("type");
+
         Map<String, Float> categoriesCount = new HashMap<>();
         for (BillItem billItem : list) {
             if (billItem.getType() == type) {
                 String category = billItem.getCategory();
-                categoriesCount.put(category, categoriesCount.getOrDefault(category, 0f) + billItem.getPrice());
+                categoriesCount.put(category, categoriesCount.getOrDefault(category, 0f) + Math.abs(billItem.getPrice()));
             }
         }
         Set<Map.Entry<String, Float>> countEntry = categoriesCount.entrySet();
@@ -50,27 +54,42 @@ public class ChartFragment extends Fragment {
         for (Map.Entry<String, Float> entry : countEntry) {
             entries.add(new PieEntry(entry.getValue(), entry.getKey()));
         }
-        PieDataSet dataSet = new PieDataSet(entries, getString(R.string.category));
-        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
-        pieData = new PieData(dataSet);
-    }
+        PieDataSet dataSet = new PieDataSet(entries, null);
+        List<String> colorStrings = Arrays.asList(getResources().getStringArray(R.array.colors));
+        List<Integer> colors = new ArrayList<>();
+        colorStrings.forEach(s -> colors.add(Color.parseColor(s)));
+        dataSet.setColors(colors);
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_chart, container, false);
+        dataSet.setValueTextSize(12.f);
+        dataSet.setValueTextColor(Color.BLACK);
+        dataSet.setValueLinePart1OffsetPercentage(80.f);
+        dataSet.setValueLinePart1Length(0.8f);
+        dataSet.setValueLinePart2Length(0.3f);
+        dataSet.setValueLineColor(Color.BLACK);
+        dataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
+        dataSet.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
+        dataSet.setValueFormatter((value, entry, dataSetIndex, viewPortHandler) -> "¥" + value);
+
+
+        PieData pieData = new PieData(dataSet);
+
         PieChart chart = view.findViewById(R.id.pie_chart);
         chart.setData(pieData);
-        chart.setRotationEnabled(false);
         chart.setDrawEntryLabels(true);
-        chart.setDescription(null);
+        chart.getDescription().setEnabled(false);
+        chart.setHoleRadius(30f);
+        chart.setTransparentCircleRadius(40f);
+
+        chart.setExtraOffsets(20, 20, 20, 20);
+        chart.animateY(500, Easing.EaseInOutCubic);
+
+        chart.setEntryLabelColor(Color.BLACK);
+
+        chart.getLegend().setOrientation(VERTICAL);
+        chart.getLegend().setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
+        chart.getLegend().setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+
         chart.invalidate();
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
     }
 }

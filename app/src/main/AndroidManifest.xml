@@ -18,6 +18,7 @@
             android:launchMode="singleTask"
             android:parentActivityName=".activities.MainActivity" />
         <activity
+            android:theme="@style/AppTheme"
             android:name=".activities.EditActivity"
             android:launchMode="singleTask"
             android:parentActivityName=".activities.MainActivity" />
