@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -79,6 +80,11 @@ public abstract class BillListFragment extends Fragment implements MyRecyclerVie
         view = inflater.inflate(R.layout.fragment_billlist, container, false);
         barAmountDisplay = view.findViewById(R.id.bar_total_amount);
         barAmountDisplay.setVisibility(View.VISIBLE);
+        barAmountDisplay.setOnClickListener(v-> {
+            if(!billItemList.isEmpty()) {
+                BottomDialogFragment.newInstance(billItemList).show(getFragmentManager(), "tag");
+            }
+        });
         textTotalIncome = view.findViewById(R.id.bar_text_income);
         textTotalPayout = view.findViewById(R.id.bar_text_payout);
         billRecyclerView = view.findViewById(R.id.bill_recyclerView);
