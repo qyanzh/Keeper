@@ -1,5 +1,6 @@
 package com.example.keeper.fragments;
 
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,13 +20,11 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.github.mikephil.charting.components.Legend.LegendOrientation.VERTICAL;
 
 public class ChartFragment extends Fragment {
     public static ChartFragment newInstance(Bundle dataBundle, int type) {
@@ -55,11 +54,13 @@ public class ChartFragment extends Fragment {
             entries.add(new PieEntry(entry.getValue(), entry.getKey()));
         }
         PieDataSet dataSet = new PieDataSet(entries, null);
-        List<String> colorStrings = Arrays.asList(getResources().getStringArray(R.array.colors));
         List<Integer> colors = new ArrayList<>();
-        colorStrings.forEach(s -> colors.add(Color.parseColor(s)));
+        TypedArray colorResource = getResources().obtainTypedArray(R.array.colors);
+        for (int i = 0; i < colorResource.length(); i++) {
+            colors.add(colorResource.getColor(i, 0));
+        }
+        colorResource.recycle();
         dataSet.setColors(colors);
-
         dataSet.setValueTextSize(12.f);
         dataSet.setValueTextColor(Color.BLACK);
         dataSet.setValueLinePart1OffsetPercentage(80.f);
@@ -84,8 +85,7 @@ public class ChartFragment extends Fragment {
         chart.animateY(500, Easing.EaseInOutCubic);
 
         chart.setEntryLabelColor(Color.BLACK);
-
-        chart.getLegend().setOrientation(VERTICAL);
+        chart.getLegend().setOrientation(Legend.LegendOrientation.VERTICAL);
         chart.getLegend().setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
         chart.getLegend().setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
 
