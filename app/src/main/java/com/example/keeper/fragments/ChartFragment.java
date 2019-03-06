@@ -80,7 +80,6 @@ public class ChartFragment extends Fragment {
         chart.getDescription().setEnabled(false);
         chart.setHoleRadius(30f);
         chart.setTransparentCircleRadius(40f);
-
         chart.setExtraOffsets(20, 20, 20, 20);
         chart.animateY(500, Easing.EaseInOutCubic);
 

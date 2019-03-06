@@ -55,4 +55,7 @@
     <string name="title_activity_test">TestActivity</string>
     <string name="home">首页</string>
 
+    <string name="toggle_open"></string>
+    <string name="toggle_close"></string>
+
 </resources>
